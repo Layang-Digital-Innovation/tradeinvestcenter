@@ -193,6 +193,8 @@ docker-compose*.yml
 # Kubernetes
 *.yaml
 *.yml
+!render.yaml
+!render.yml
 !package*.json
 !tsconfig*.json
 !next.config.*
