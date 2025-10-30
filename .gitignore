@@ -188,7 +188,11 @@ dump.rdb
 # Docker
 .dockerignore
 Dockerfile*
+!Dockerfile
+!/backend/Dockerfile
+!/frontend/Dockerfile
 docker-compose*.yml
+!docker-compose.yml
 
 # Kubernetes
 *.yaml
