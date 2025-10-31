@@ -280,6 +280,32 @@ let TradingService = class TradingService {
             data: { status },
         });
     }
+    async setOrderFixedPrices(id, body) {
+        const order = await this.prisma.order.findUnique({ where: { id } });
+        if (!order)
+            throw new common_1.NotFoundException('Order not found');
+        if (!body || !Array.isArray(body.items) || body.items.length === 0) {
+            throw new common_1.NotFoundException('No items provided');
+        }
+        const first = body.items[0];
+        const pricePerUnit = Number(first.fixedUnitPrice);
+        const currency = first.currency;
+        const totalPrice = pricePerUnit * Number(order.quantity || 0);
+        const updated = await this.prisma.order.update({
+            where: { id },
+            data: {
+                pricePerUnit,
+                totalPrice,
+                currency,
+            },
+            include: {
+                product: { include: { prices: true } },
+                buyer: { select: { id: true, email: true, fullname: true } },
+                shipment: true,
+            },
+        });
+        return updated;
+    }
     async createShipment(orderId, data) {
         const order = await this.prisma.order.findUnique({
             where: { id: orderId },

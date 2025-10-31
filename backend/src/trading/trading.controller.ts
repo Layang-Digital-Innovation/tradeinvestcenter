@@ -150,6 +150,17 @@ export class TradingController {
     return this.tradingService.updateOrderStatus(id, status);
   }
 
+  // Admin: set fixed prices (for current schema supporting single-item orders)
+  @Put('orders/:id/fixed-prices')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.ADMIN_TRADING, Role.SUPER_ADMIN)
+  async setOrderFixedPrices(
+    @Param('id') id: string,
+    @Body() body: { items: Array<{ fixedUnitPrice: number; currency: 'IDR' | 'USD' }> }
+  ) {
+    return this.tradingService.setOrderFixedPrices(id, body);
+  }
+
   // Shipment Endpoints
   @Post('orders/:orderId/shipment')
   @UseGuards(JwtAuthGuard, RolesGuard)

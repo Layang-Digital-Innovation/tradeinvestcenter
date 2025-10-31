@@ -481,6 +481,70 @@ export declare class TradingService {
         totalPrice: number;
         buyerId: string;
     }>;
+    setOrderFixedPrices(id: string, body: {
+        items: Array<{
+            fixedUnitPrice: number;
+            currency: 'IDR' | 'USD';
+        }>;
+    }): Promise<{
+        product: {
+            prices: {
+                id: string;
+                price: number;
+                currency: import(".prisma/client").$Enums.Currency;
+                createdAt: Date;
+                updatedAt: Date;
+                productId: string;
+            }[];
+        } & {
+            id: string;
+            name: string;
+            description: string;
+            price: number | null;
+            currency: string | null;
+            unit: string;
+            weight: number;
+            volume: string;
+            createdAt: Date;
+            status: import(".prisma/client").$Enums.ProductStatus;
+            approvedBy: string | null;
+            approvedAt: Date | null;
+            priceType: import(".prisma/client").$Enums.PriceType;
+            sellerId: string;
+        };
+        shipment: {
+            id: string;
+            currency: import(".prisma/client").$Enums.Currency | null;
+            createdAt: Date;
+            status: import(".prisma/client").$Enums.ShipmentStatus;
+            updatedAt: Date;
+            orderId: string;
+            method: import(".prisma/client").$Enums.ShipmentMethod;
+            carrier: string | null;
+            trackingNumber: string | null;
+            trackingUrl: string | null;
+            seaPricingMode: import(".prisma/client").$Enums.SeaPricingMode | null;
+            cbmVolume: number | null;
+            containerType: import(".prisma/client").$Enums.ContainerType | null;
+            freightCost: number | null;
+        };
+        buyer: {
+            id: string;
+            email: string;
+            fullname: string;
+        };
+    } & {
+        id: string;
+        currency: import(".prisma/client").$Enums.Currency;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.OrderStatus;
+        productId: string;
+        quantity: number;
+        notes: string | null;
+        pricePerUnit: number;
+        totalPrice: number;
+        buyerId: string;
+    }>;
     createShipment(orderId: string, data: {
         method: ShipmentMethod;
     }): Promise<{

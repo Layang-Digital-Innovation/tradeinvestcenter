@@ -20,14 +20,9 @@ export declare class InvestmentController {
         prospectusFileName?: string;
     }): Promise<{
         id: string;
-        description: string;
-        createdAt: Date;
-        status: import(".prisma/client").$Enums.ProjectStatus;
-        updatedAt: Date;
-        bankName: string | null;
-        accountNumber: string | null;
         title: string;
-        ownerId: string;
+        description: string;
+        status: import(".prisma/client").$Enums.ProjectStatus;
         financialDocs: import("@prisma/client/runtime/library").JsonValue | null;
         targetAmount: number | null;
         currentAmount: number;
@@ -37,28 +32,28 @@ export declare class InvestmentController {
         prospectusUrl: string | null;
         prospectusFileName: string | null;
         deadline: Date | null;
+        bankName: string | null;
+        accountNumber: string | null;
         accountHolder: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        ownerId: string;
     }>;
     getProjects(status?: ProjectStatus): Promise<{
         totalInvestment: number;
+        owner: {
+            id: string;
+            email: string;
+        };
         investments: {
             id: string;
             status: import(".prisma/client").$Enums.InvestmentStatus;
             amount: number;
         }[];
-        owner: {
-            id: string;
-            email: string;
-        };
         id: string;
-        description: string;
-        createdAt: Date;
-        status: import(".prisma/client").$Enums.ProjectStatus;
-        updatedAt: Date;
-        bankName: string | null;
-        accountNumber: string | null;
         title: string;
-        ownerId: string;
+        description: string;
+        status: import(".prisma/client").$Enums.ProjectStatus;
         financialDocs: import("@prisma/client/runtime/library").JsonValue | null;
         targetAmount: number | null;
         currentAmount: number;
@@ -68,19 +63,35 @@ export declare class InvestmentController {
         prospectusUrl: string | null;
         prospectusFileName: string | null;
         deadline: Date | null;
+        bankName: string | null;
+        accountNumber: string | null;
         accountHolder: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        ownerId: string;
     }[]>;
     getProjectById(id: string): Promise<{
         totalInvestment: number;
+        owner: {
+            id: string;
+            email: string;
+        };
         investments: {
             id: string;
-            createdAt: Date;
             status: import(".prisma/client").$Enums.InvestmentStatus;
+            createdAt: Date;
             amount: number;
             investor: {
                 id: string;
                 email: string;
             };
+        }[];
+        reports: {
+            id: string;
+            createdAt: Date;
+            projectId: string;
+            type: import(".prisma/client").$Enums.ReportType;
+            fileUrl: string;
         }[];
         dividends: {
             id: string;
@@ -90,26 +101,10 @@ export declare class InvestmentController {
             projectId: string;
             date: Date;
         }[];
-        owner: {
-            id: string;
-            email: string;
-        };
-        reports: {
-            id: string;
-            createdAt: Date;
-            type: import(".prisma/client").$Enums.ReportType;
-            projectId: string;
-            fileUrl: string;
-        }[];
         id: string;
-        description: string;
-        createdAt: Date;
-        status: import(".prisma/client").$Enums.ProjectStatus;
-        updatedAt: Date;
-        bankName: string | null;
-        accountNumber: string | null;
         title: string;
-        ownerId: string;
+        description: string;
+        status: import(".prisma/client").$Enums.ProjectStatus;
         financialDocs: import("@prisma/client/runtime/library").JsonValue | null;
         targetAmount: number | null;
         currentAmount: number;
@@ -119,7 +114,12 @@ export declare class InvestmentController {
         prospectusUrl: string | null;
         prospectusFileName: string | null;
         deadline: Date | null;
+        bankName: string | null;
+        accountNumber: string | null;
         accountHolder: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        ownerId: string;
     }>;
     investInProject(req: any, projectId: string, data: {
         amount: number;
@@ -135,10 +135,8 @@ export declare class InvestmentController {
         };
     } & {
         id: string;
-        createdAt: Date;
         status: import(".prisma/client").$Enums.InvestmentStatus;
-        approvedBy: string | null;
-        approvedAt: Date | null;
+        createdAt: Date;
         updatedAt: Date;
         amount: number;
         investorId: string;
@@ -146,6 +144,8 @@ export declare class InvestmentController {
         transferProofUrl: string | null;
         transferProofFileName: string | null;
         transferDate: Date | null;
+        approvedBy: string | null;
+        approvedAt: Date | null;
         rejectedReason: string | null;
         chatId: string | null;
     }>;
@@ -153,14 +153,9 @@ export declare class InvestmentController {
         status: ProjectStatus;
     }): Promise<{
         id: string;
-        description: string;
-        createdAt: Date;
-        status: import(".prisma/client").$Enums.ProjectStatus;
-        updatedAt: Date;
-        bankName: string | null;
-        accountNumber: string | null;
         title: string;
-        ownerId: string;
+        description: string;
+        status: import(".prisma/client").$Enums.ProjectStatus;
         financialDocs: import("@prisma/client/runtime/library").JsonValue | null;
         targetAmount: number | null;
         currentAmount: number;
@@ -170,7 +165,12 @@ export declare class InvestmentController {
         prospectusUrl: string | null;
         prospectusFileName: string | null;
         deadline: Date | null;
+        bankName: string | null;
+        accountNumber: string | null;
         accountHolder: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        ownerId: string;
     }>;
     distributeDividend(projectId: string, data: {
         amount: number;
@@ -180,22 +180,38 @@ export declare class InvestmentController {
     getMyProjects(req: any): Promise<{
         totalInvestment: number;
         id: string;
+        title: string;
         description: string;
-        createdAt: Date;
         status: import(".prisma/client").$Enums.ProjectStatus;
+        targetAmount: number;
+        currentAmount: number;
+        minInvestment: number;
+        profitSharingPercentage: number;
+        profitSharingPercentageAfterBEP: number;
+        prospectusUrl: string;
+        prospectusFileName: string;
+        deadline: Date;
+        bankName: string;
+        accountNumber: string;
+        accountHolder: string;
+        createdAt: Date;
         updatedAt: Date;
-        _count: {
-            investments: number;
-        };
         investments: {
             id: string;
-            createdAt: Date;
             status: import(".prisma/client").$Enums.InvestmentStatus;
+            createdAt: Date;
             amount: number;
             investor: {
                 id: string;
                 email: string;
             };
+        }[];
+        reports: {
+            id: string;
+            createdAt: Date;
+            projectId: string;
+            type: import(".prisma/client").$Enums.ReportType;
+            fileUrl: string;
         }[];
         dividends: {
             id: string;
@@ -205,26 +221,10 @@ export declare class InvestmentController {
             projectId: string;
             date: Date;
         }[];
-        bankName: string;
-        accountNumber: string;
-        title: string;
         ownerId: string;
-        targetAmount: number;
-        currentAmount: number;
-        minInvestment: number;
-        profitSharingPercentage: number;
-        profitSharingPercentageAfterBEP: number;
-        prospectusUrl: string;
-        prospectusFileName: string;
-        deadline: Date;
-        accountHolder: string;
-        reports: {
-            id: string;
-            createdAt: Date;
-            type: import(".prisma/client").$Enums.ReportType;
-            projectId: string;
-            fileUrl: string;
-        }[];
+        _count: {
+            investments: number;
+        };
     }[]>;
     updateProject(req: any, projectId: string, data: {
         title?: string;
@@ -242,14 +242,9 @@ export declare class InvestmentController {
         progress?: number;
     }): Promise<{
         id: string;
-        description: string;
-        createdAt: Date;
-        status: import(".prisma/client").$Enums.ProjectStatus;
-        updatedAt: Date;
-        bankName: string | null;
-        accountNumber: string | null;
         title: string;
-        ownerId: string;
+        description: string;
+        status: import(".prisma/client").$Enums.ProjectStatus;
         financialDocs: import("@prisma/client/runtime/library").JsonValue | null;
         targetAmount: number | null;
         currentAmount: number;
@@ -259,7 +254,12 @@ export declare class InvestmentController {
         prospectusUrl: string | null;
         prospectusFileName: string | null;
         deadline: Date | null;
+        bankName: string | null;
+        accountNumber: string | null;
         accountHolder: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        ownerId: string;
     }>;
     updateBankAccount(req: any, projectId: string, data: {
         bankAccount: string;
@@ -267,14 +267,9 @@ export declare class InvestmentController {
         accountHolder: string;
     }): Promise<{
         id: string;
-        description: string;
-        createdAt: Date;
-        status: import(".prisma/client").$Enums.ProjectStatus;
-        updatedAt: Date;
-        bankName: string | null;
-        accountNumber: string | null;
         title: string;
-        ownerId: string;
+        description: string;
+        status: import(".prisma/client").$Enums.ProjectStatus;
         financialDocs: import("@prisma/client/runtime/library").JsonValue | null;
         targetAmount: number | null;
         currentAmount: number;
@@ -284,7 +279,12 @@ export declare class InvestmentController {
         prospectusUrl: string | null;
         prospectusFileName: string | null;
         deadline: Date | null;
+        bankName: string | null;
+        accountNumber: string | null;
         accountHolder: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        ownerId: string;
     }>;
     addFinancialReport(req: any, projectId: string, data: {
         type: ReportType;
@@ -294,8 +294,8 @@ export declare class InvestmentController {
     }): Promise<{
         id: string;
         createdAt: Date;
-        type: import(".prisma/client").$Enums.ReportType;
         projectId: string;
+        type: import(".prisma/client").$Enums.ReportType;
         fileUrl: string;
     }>;
     getPortfolio(req: any): Promise<{
@@ -310,8 +310,9 @@ export declare class InvestmentController {
                 dividendsReceived: number;
                 project: {
                     totalInvestment: any;
-                    _count: {
-                        investments: number;
+                    owner: {
+                        id: string;
+                        email: string;
                     };
                     investments: {
                         amount: number;
@@ -324,19 +325,13 @@ export declare class InvestmentController {
                         projectId: string;
                         date: Date;
                     }[];
-                    owner: {
-                        id: string;
-                        email: string;
+                    _count: {
+                        investments: number;
                     };
                     id: string;
-                    description: string;
-                    createdAt: Date;
-                    status: import(".prisma/client").$Enums.ProjectStatus;
-                    updatedAt: Date;
-                    bankName: string | null;
-                    accountNumber: string | null;
                     title: string;
-                    ownerId: string;
+                    description: string;
+                    status: import(".prisma/client").$Enums.ProjectStatus;
                     financialDocs: import("@prisma/client/runtime/library").JsonValue | null;
                     targetAmount: number | null;
                     currentAmount: number;
@@ -346,26 +341,29 @@ export declare class InvestmentController {
                     prospectusUrl: string | null;
                     prospectusFileName: string | null;
                     deadline: Date | null;
+                    bankName: string | null;
+                    accountNumber: string | null;
                     accountHolder: string | null;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    ownerId: string;
                 };
                 dividendDistributions: {
                     id: string;
-                    createdAt: Date;
                     status: import(".prisma/client").$Enums.DividendStatus;
+                    createdAt: Date;
                     updatedAt: Date;
                     amount: number;
-                    paidAt: Date | null;
                     investorId: string;
                     percentage: number;
                     dividendId: string;
                     investmentId: string;
+                    paidAt: Date | null;
                     paymentProof: string | null;
                 }[];
                 id: string;
-                createdAt: Date;
                 status: import(".prisma/client").$Enums.InvestmentStatus;
-                approvedBy: string | null;
-                approvedAt: Date | null;
+                createdAt: Date;
                 updatedAt: Date;
                 amount: number;
                 investorId: string;
@@ -373,13 +371,16 @@ export declare class InvestmentController {
                 transferProofUrl: string | null;
                 transferProofFileName: string | null;
                 transferDate: Date | null;
+                approvedBy: string | null;
+                approvedAt: Date | null;
                 rejectedReason: string | null;
                 chatId: string | null;
             };
             project: {
                 totalInvestment: any;
-                _count: {
-                    investments: number;
+                owner: {
+                    id: string;
+                    email: string;
                 };
                 investments: {
                     amount: number;
@@ -392,19 +393,13 @@ export declare class InvestmentController {
                     projectId: string;
                     date: Date;
                 }[];
-                owner: {
-                    id: string;
-                    email: string;
+                _count: {
+                    investments: number;
                 };
                 id: string;
-                description: string;
-                createdAt: Date;
-                status: import(".prisma/client").$Enums.ProjectStatus;
-                updatedAt: Date;
-                bankName: string | null;
-                accountNumber: string | null;
                 title: string;
-                ownerId: string;
+                description: string;
+                status: import(".prisma/client").$Enums.ProjectStatus;
                 financialDocs: import("@prisma/client/runtime/library").JsonValue | null;
                 targetAmount: number | null;
                 currentAmount: number;
@@ -414,7 +409,12 @@ export declare class InvestmentController {
                 prospectusUrl: string | null;
                 prospectusFileName: string | null;
                 deadline: Date | null;
+                bankName: string | null;
+                accountNumber: string | null;
                 accountHolder: string | null;
+                createdAt: Date;
+                updatedAt: Date;
+                ownerId: string;
             };
             dividendsReceived: number;
             pendingDividends: number;
@@ -422,22 +422,17 @@ export declare class InvestmentController {
         }[];
         availableProjects: {
             totalInvestment: number;
-            investments: {
-                amount: number;
-            }[];
             owner: {
                 id: string;
                 email: string;
             };
+            investments: {
+                amount: number;
+            }[];
             id: string;
-            description: string;
-            createdAt: Date;
-            status: import(".prisma/client").$Enums.ProjectStatus;
-            updatedAt: Date;
-            bankName: string | null;
-            accountNumber: string | null;
             title: string;
-            ownerId: string;
+            description: string;
+            status: import(".prisma/client").$Enums.ProjectStatus;
             financialDocs: import("@prisma/client/runtime/library").JsonValue | null;
             targetAmount: number | null;
             currentAmount: number;
@@ -447,24 +442,34 @@ export declare class InvestmentController {
             prospectusUrl: string | null;
             prospectusFileName: string | null;
             deadline: Date | null;
+            bankName: string | null;
+            accountNumber: string | null;
             accountHolder: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            ownerId: string;
         }[];
         totalReturn: number;
         roi: number;
         activeProjects: number;
+        projectBreakdown: {
+            roi: number;
+            projectId: string;
+            projectTitle: string;
+            totalInvested: number;
+            totalReturn: number;
+        }[];
     }>;
     getInvestmentHistory(req: any): Promise<({
         project: {
             id: string;
-            status: import(".prisma/client").$Enums.ProjectStatus;
             title: string;
+            status: import(".prisma/client").$Enums.ProjectStatus;
         };
     } & {
         id: string;
-        createdAt: Date;
         status: import(".prisma/client").$Enums.InvestmentStatus;
-        approvedBy: string | null;
-        approvedAt: Date | null;
+        createdAt: Date;
         updatedAt: Date;
         amount: number;
         investorId: string;
@@ -472,13 +477,16 @@ export declare class InvestmentController {
         transferProofUrl: string | null;
         transferProofFileName: string | null;
         transferDate: Date | null;
+        approvedBy: string | null;
+        approvedAt: Date | null;
         rejectedReason: string | null;
         chatId: string | null;
     })[]>;
     getDividendHistory(req: any): Promise<any[]>;
     getAllProjectsForAdmin(): Promise<({
-        _count: {
-            investments: number;
+        owner: {
+            id: string;
+            email: string;
         };
         investments: ({
             investor: {
@@ -487,10 +495,8 @@ export declare class InvestmentController {
             };
         } & {
             id: string;
-            createdAt: Date;
             status: import(".prisma/client").$Enums.InvestmentStatus;
-            approvedBy: string | null;
-            approvedAt: Date | null;
+            createdAt: Date;
             updatedAt: Date;
             amount: number;
             investorId: string;
@@ -498,9 +504,18 @@ export declare class InvestmentController {
             transferProofUrl: string | null;
             transferProofFileName: string | null;
             transferDate: Date | null;
+            approvedBy: string | null;
+            approvedAt: Date | null;
             rejectedReason: string | null;
             chatId: string | null;
         })[];
+        reports: {
+            id: string;
+            createdAt: Date;
+            projectId: string;
+            type: import(".prisma/client").$Enums.ReportType;
+            fileUrl: string;
+        }[];
         dividends: {
             id: string;
             createdAt: Date;
@@ -509,27 +524,14 @@ export declare class InvestmentController {
             projectId: string;
             date: Date;
         }[];
-        owner: {
-            id: string;
-            email: string;
+        _count: {
+            investments: number;
         };
-        reports: {
-            id: string;
-            createdAt: Date;
-            type: import(".prisma/client").$Enums.ReportType;
-            projectId: string;
-            fileUrl: string;
-        }[];
     } & {
         id: string;
-        description: string;
-        createdAt: Date;
-        status: import(".prisma/client").$Enums.ProjectStatus;
-        updatedAt: Date;
-        bankName: string | null;
-        accountNumber: string | null;
         title: string;
-        ownerId: string;
+        description: string;
+        status: import(".prisma/client").$Enums.ProjectStatus;
         financialDocs: import("@prisma/client/runtime/library").JsonValue | null;
         targetAmount: number | null;
         currentAmount: number;
@@ -539,7 +541,12 @@ export declare class InvestmentController {
         prospectusUrl: string | null;
         prospectusFileName: string | null;
         deadline: Date | null;
+        bankName: string | null;
+        accountNumber: string | null;
         accountHolder: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        ownerId: string;
     })[]>;
     getProjectStatistics(): Promise<{
         totalProjects: number;
@@ -561,9 +568,9 @@ export declare class InvestmentController {
     }): Promise<{
         project: {
             id: string;
+            title: string;
             bankName: string;
             accountNumber: string;
-            title: string;
             accountHolder: string;
         };
         investor: {
@@ -572,10 +579,8 @@ export declare class InvestmentController {
         };
     } & {
         id: string;
-        createdAt: Date;
         status: import(".prisma/client").$Enums.InvestmentStatus;
-        approvedBy: string | null;
-        approvedAt: Date | null;
+        createdAt: Date;
         updatedAt: Date;
         amount: number;
         investorId: string;
@@ -583,6 +588,8 @@ export declare class InvestmentController {
         transferProofUrl: string | null;
         transferProofFileName: string | null;
         transferDate: Date | null;
+        approvedBy: string | null;
+        approvedAt: Date | null;
         rejectedReason: string | null;
         chatId: string | null;
     }>;
@@ -597,14 +604,9 @@ export declare class InvestmentController {
             email: string;
         };
         id: string;
-        description: string;
-        createdAt: Date;
-        status: import(".prisma/client").$Enums.ProjectStatus;
-        updatedAt: Date;
-        bankName: string | null;
-        accountNumber: string | null;
         title: string;
-        ownerId: string;
+        description: string;
+        status: import(".prisma/client").$Enums.ProjectStatus;
         financialDocs: import("@prisma/client/runtime/library").JsonValue | null;
         targetAmount: number | null;
         currentAmount: number;
@@ -614,7 +616,12 @@ export declare class InvestmentController {
         prospectusUrl: string | null;
         prospectusFileName: string | null;
         deadline: Date | null;
+        bankName: string | null;
+        accountNumber: string | null;
         accountHolder: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        ownerId: string;
     }>;
     approveInvestment(req: any, investmentId: string, data?: {
         amount?: number;
@@ -626,14 +633,9 @@ export declare class InvestmentController {
             };
         } & {
             id: string;
-            description: string;
-            createdAt: Date;
-            status: import(".prisma/client").$Enums.ProjectStatus;
-            updatedAt: Date;
-            bankName: string | null;
-            accountNumber: string | null;
             title: string;
-            ownerId: string;
+            description: string;
+            status: import(".prisma/client").$Enums.ProjectStatus;
             financialDocs: import("@prisma/client/runtime/library").JsonValue | null;
             targetAmount: number | null;
             currentAmount: number;
@@ -643,7 +645,12 @@ export declare class InvestmentController {
             prospectusUrl: string | null;
             prospectusFileName: string | null;
             deadline: Date | null;
+            bankName: string | null;
+            accountNumber: string | null;
             accountHolder: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            ownerId: string;
         };
         investor: {
             id: string;
@@ -652,10 +659,8 @@ export declare class InvestmentController {
         };
     } & {
         id: string;
-        createdAt: Date;
         status: import(".prisma/client").$Enums.InvestmentStatus;
-        approvedBy: string | null;
-        approvedAt: Date | null;
+        createdAt: Date;
         updatedAt: Date;
         amount: number;
         investorId: string;
@@ -663,6 +668,8 @@ export declare class InvestmentController {
         transferProofUrl: string | null;
         transferProofFileName: string | null;
         transferDate: Date | null;
+        approvedBy: string | null;
+        approvedAt: Date | null;
         rejectedReason: string | null;
         chatId: string | null;
     }>;
@@ -680,10 +687,8 @@ export declare class InvestmentController {
         };
     } & {
         id: string;
-        createdAt: Date;
         status: import(".prisma/client").$Enums.InvestmentStatus;
-        approvedBy: string | null;
-        approvedAt: Date | null;
+        createdAt: Date;
         updatedAt: Date;
         amount: number;
         investorId: string;
@@ -691,6 +696,8 @@ export declare class InvestmentController {
         transferProofUrl: string | null;
         transferProofFileName: string | null;
         transferDate: Date | null;
+        approvedBy: string | null;
+        approvedAt: Date | null;
         rejectedReason: string | null;
         chatId: string | null;
     }>;
@@ -703,8 +710,19 @@ export declare class InvestmentController {
         totalDividends: number;
         project: {
             totalInvestment: number;
+            owner: {
+                id: string;
+                email: string;
+            };
             investments: {
                 amount: number;
+            }[];
+            reports: {
+                id: string;
+                createdAt: Date;
+                projectId: string;
+                type: import(".prisma/client").$Enums.ReportType;
+                fileUrl: string;
             }[];
             dividends: {
                 id: string;
@@ -714,26 +732,10 @@ export declare class InvestmentController {
                 projectId: string;
                 date: Date;
             }[];
-            owner: {
-                id: string;
-                email: string;
-            };
-            reports: {
-                id: string;
-                createdAt: Date;
-                type: import(".prisma/client").$Enums.ReportType;
-                projectId: string;
-                fileUrl: string;
-            }[];
             id: string;
-            description: string;
-            createdAt: Date;
-            status: import(".prisma/client").$Enums.ProjectStatus;
-            updatedAt: Date;
-            bankName: string | null;
-            accountNumber: string | null;
             title: string;
-            ownerId: string;
+            description: string;
+            status: import(".prisma/client").$Enums.ProjectStatus;
             financialDocs: import("@prisma/client/runtime/library").JsonValue | null;
             targetAmount: number | null;
             currentAmount: number;
@@ -743,13 +745,16 @@ export declare class InvestmentController {
             prospectusUrl: string | null;
             prospectusFileName: string | null;
             deadline: Date | null;
+            bankName: string | null;
+            accountNumber: string | null;
             accountHolder: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            ownerId: string;
         };
         id: string;
-        createdAt: Date;
         status: import(".prisma/client").$Enums.InvestmentStatus;
-        approvedBy: string | null;
-        approvedAt: Date | null;
+        createdAt: Date;
         updatedAt: Date;
         amount: number;
         investorId: string;
@@ -757,6 +762,8 @@ export declare class InvestmentController {
         transferProofUrl: string | null;
         transferProofFileName: string | null;
         transferDate: Date | null;
+        approvedBy: string | null;
+        approvedAt: Date | null;
         rejectedReason: string | null;
         chatId: string | null;
     }[]>;
@@ -768,14 +775,9 @@ export declare class InvestmentController {
             };
         } & {
             id: string;
-            description: string;
-            createdAt: Date;
-            status: import(".prisma/client").$Enums.ProjectStatus;
-            updatedAt: Date;
-            bankName: string | null;
-            accountNumber: string | null;
             title: string;
-            ownerId: string;
+            description: string;
+            status: import(".prisma/client").$Enums.ProjectStatus;
             financialDocs: import("@prisma/client/runtime/library").JsonValue | null;
             targetAmount: number | null;
             currentAmount: number;
@@ -785,7 +787,12 @@ export declare class InvestmentController {
             prospectusUrl: string | null;
             prospectusFileName: string | null;
             deadline: Date | null;
+            bankName: string | null;
+            accountNumber: string | null;
             accountHolder: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            ownerId: string;
         };
         investor: {
             id: string;
@@ -793,10 +800,8 @@ export declare class InvestmentController {
         };
     } & {
         id: string;
-        createdAt: Date;
         status: import(".prisma/client").$Enums.InvestmentStatus;
-        approvedBy: string | null;
-        approvedAt: Date | null;
+        createdAt: Date;
         updatedAt: Date;
         amount: number;
         investorId: string;
@@ -804,19 +809,21 @@ export declare class InvestmentController {
         transferProofUrl: string | null;
         transferProofFileName: string | null;
         transferDate: Date | null;
+        approvedBy: string | null;
+        approvedAt: Date | null;
         rejectedReason: string | null;
         chatId: string | null;
     }>;
     getProjectInvestments(req: any, projectId: string): Promise<{
         id: string;
-        createdAt: Date;
         status: import(".prisma/client").$Enums.InvestmentStatus;
-        approvedAt: Date;
+        createdAt: Date;
         updatedAt: Date;
         amount: number;
         transferProofUrl: string;
         transferProofFileName: string;
         transferDate: Date;
+        approvedAt: Date;
         rejectedReason: string;
         investor: {
             id: string;

@@ -72,6 +72,9 @@ let TradingController = class TradingController {
     async updateOrderStatus(id, status) {
         return this.tradingService.updateOrderStatus(id, status);
     }
+    async setOrderFixedPrices(id, body) {
+        return this.tradingService.setOrderFixedPrices(id, body);
+    }
     async createShipment(orderId, data) {
         return this.tradingService.createShipment(orderId, data);
     }
@@ -225,6 +228,16 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], TradingController.prototype, "updateOrderStatus", null);
+__decorate([
+    (0, common_1.Put)('orders/:id/fixed-prices'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN, client_1.Role.ADMIN_TRADING, client_1.Role.SUPER_ADMIN),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], TradingController.prototype, "setOrderFixedPrices", null);
 __decorate([
     (0, common_1.Post)('orders/:orderId/shipment'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

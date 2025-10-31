@@ -309,6 +309,33 @@ export class TradingService {
     });
   }
 
+  // Admin: set fixed prices (current schema supports single-item orders)
+  async setOrderFixedPrices(id: string, body: { items: Array<{ fixedUnitPrice: number; currency: 'IDR' | 'USD' }> }) {
+    const order = await this.prisma.order.findUnique({ where: { id } });
+    if (!order) throw new NotFoundException('Order not found');
+    if (!body || !Array.isArray(body.items) || body.items.length === 0) {
+      throw new NotFoundException('No items provided');
+    }
+    const first = body.items[0];
+    const pricePerUnit = Number(first.fixedUnitPrice);
+    const currency = first.currency as any;
+    const totalPrice = pricePerUnit * Number(order.quantity || 0);
+    const updated = await this.prisma.order.update({
+      where: { id },
+      data: {
+        pricePerUnit,
+        totalPrice,
+        currency,
+      },
+      include: {
+        product: { include: { prices: true } },
+        buyer: { select: { id: true, email: true, fullname: true } },
+        shipment: true,
+      },
+    });
+    return updated;
+  }
+
   // Shipment Management
   async createShipment(orderId: string, data: { method: ShipmentMethod }) {
     const order = await this.prisma.order.findUnique({

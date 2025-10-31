@@ -667,6 +667,36 @@ export class InvestmentService {
       };
     });
 
+    // Build per-project breakdown for the investor
+    const projectMap = new Map<string, {
+      projectId: string;
+      projectTitle: string;
+      totalInvested: number;
+      totalReturn: number;
+      roi: number;
+    }>();
+
+    for (const item of portfolio) {
+      const pId = item.project.id;
+      const existing = projectMap.get(pId) || {
+        projectId: pId,
+        projectTitle: item.project.title,
+        totalInvested: 0,
+        totalReturn: 0,
+        roi: 0,
+      };
+      existing.totalInvested += item.amount;
+      // Use proportional dividends (matches dividend history/overall total return shown in UI)
+      existing.totalReturn += (item.totalDividends || 0);
+      projectMap.set(pId, existing);
+    }
+
+    // finalize ROI per project
+    const projectBreakdown = Array.from(projectMap.values()).map(p => ({
+      ...p,
+      roi: p.totalInvested > 0 ? (p.totalReturn / p.totalInvested) * 100 : 0,
+    }));
+
     return {
       totalInvested,
       totalDividendsReceived,
@@ -683,6 +713,7 @@ export class InvestmentService {
       totalReturn: totalDividendsReceived,
       roi,
       activeProjects: activeInvestments,
+      projectBreakdown,
     };
   }
 
