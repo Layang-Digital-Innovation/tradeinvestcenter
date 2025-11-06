@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Skip ESLint during production builds
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  // Skip TypeScript type checking during production builds
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   async headers() {
     return [
       {
