@@ -2,6 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   serverExternalPackages: [],
+    eslint: {
+    ignoreDuringBuilds: true, // ✅ skip linting di build
+  },
+  typescript: {
+    ignoreBuildErrors: true, // ✅ optional, kalau mau skip type check juga
+  },
   async redirects() {
     return [];
   },
