@@ -9,6 +9,9 @@ import Button from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
 import authService from '@/services/auth.service';
 
+// Force this page to render dynamically at request time to avoid build-time prerendering
+export const dynamic = 'force-dynamic';
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
