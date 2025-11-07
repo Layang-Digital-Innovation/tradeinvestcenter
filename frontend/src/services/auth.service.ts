@@ -1,7 +1,7 @@
 import axiosInstance from '@/utils/axiosConfig';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
-const API_URL = `${API_BASE}/auth`;
+// Gunakan path relatif agar tidak double 'api' ketika baseURL adalah '/api'
+const API_URL = '/auth';
 
 export interface LoginResponse {
   access_token: string;
