@@ -4,7 +4,8 @@ import { toast } from 'react-toastify';
 
 // Buat instance axios
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
+  withCredentials: true,
 });
 
 // Tambahkan interceptor untuk request
