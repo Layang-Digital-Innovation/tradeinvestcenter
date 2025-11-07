@@ -12,11 +12,17 @@ COPY tsconfig*.json ./
 COPY prisma ./prisma
 COPY src ./src
 
-# Build NestJS app (skip prisma generate at build to avoid missing env)
+# Provide placeholder DATABASE_URL so prisma generate can read schema
+ENV DATABASE_URL="postgresql://postgres:admin123@trade-invest-center-dbtradeinvestcenter-guhia7:5432/db_tradeinvestcenter"
+
+# Generate Prisma client for TypeScript compilation
+RUN npx prisma generate
+
+# Build NestJS app
 RUN npm run build
 
 EXPOSE 3001
 ENV NODE_ENV=production
 
-# Generate Prisma client and run migrations at container start (envs are available)
-CMD ["sh", "-c", "npx prisma generate && npx prisma migrate deploy && node dist/main"]
+# Run migrations at container start (envs provided by Dokploy)
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
