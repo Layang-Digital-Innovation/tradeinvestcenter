@@ -28,8 +28,9 @@ import {
   NotificationResponse,
 } from '../types/investment.types';
 
-const API_URL = 'http://localhost:3001/api/investment';
-const INVESTMENT_HISTORY_API_URL = 'http://localhost:3001/api/investment-history';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = `${API_BASE}/api/investment`;
+const INVESTMENT_HISTORY_API_URL = `${API_BASE}/api/investment-history`;
 
 // Create axios instance with auth interceptor
 const apiClient = axios.create({
@@ -385,7 +386,7 @@ class InvestmentService {
       token = userData.access_token;
     }
     
-    const response = await axios.get(`http://localhost:3001/api/notifications?page=${page}&limit=${limit}`, {
+    const response = await axios.get(`${API_BASE}/api/notifications?page=${page}&limit=${limit}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -401,7 +402,7 @@ class InvestmentService {
       token = userData.access_token;
     }
     
-    await axios.put(`http://localhost:3001/api/notifications/${notificationId}/read`, {}, {
+    await axios.put(`${API_BASE}/api/notifications/${notificationId}/read`, {}, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -416,7 +417,7 @@ class InvestmentService {
       token = userData.access_token;
     }
     
-    const response = await axios.get('http://localhost:3001/api/notifications/unread-count', {
+    const response = await axios.get(`${API_BASE}/api/notifications/unread-count`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

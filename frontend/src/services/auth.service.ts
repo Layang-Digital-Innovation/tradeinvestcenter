@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3001/api/auth';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = `${API_BASE}/api/auth`;
 
 export interface LoginResponse {
   access_token: string;
@@ -27,7 +28,10 @@ export interface LoginData {
 
 class AuthService {
   async login(data: LoginData): Promise<LoginResponse> {
-    const response = await axios.post(`${API_URL}/login`, data);
+    const response = await axios.post(`${API_URL}/login`, data, {
+      headers: { 'Content-Type': 'application/json' },
+      withCredentials: true,
+    });
     if (response.data.access_token) {
       localStorage.setItem('user', JSON.stringify(response.data));
       
@@ -39,7 +43,10 @@ class AuthService {
   }
 
   async register(data: RegisterData): Promise<any> {
-    return axios.post(`${API_URL}/register`, data);
+    return axios.post(`${API_URL}/register`, data, {
+      headers: { 'Content-Type': 'application/json' },
+      withCredentials: true,
+    });
   }
 
   logout(): void {
