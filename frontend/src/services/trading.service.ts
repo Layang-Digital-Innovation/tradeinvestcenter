@@ -5,46 +5,46 @@ export const tradingService = {
   async getApprovedProducts(params?: { sellerId?: string }) {
     const qs = new URLSearchParams();
     if (params?.sellerId) qs.set('sellerId', params.sellerId);
-    const { data } = await axiosInstance.get(`/api/trading/products${qs.toString() ? `?${qs.toString()}` : ''}`);
+    const { data } = await axiosInstance.get(`/trading/products${qs.toString() ? `?${qs.toString()}` : ''}`);
     return data as any[];
   },
   async getProduct(id: string) {
-    const { data } = await axiosInstance.get(`/api/trading/products/${id}`);
+    const { data } = await axiosInstance.get(`/trading/products/${id}`);
     return data as any;
   },
   async createProduct(payload: { name: string; description: string; prices: Array<{ currency: 'IDR' | 'USD'; price: number }>; unit: string; weight: number; volume: string; }) {
-    const { data } = await axiosInstance.post('/api/trading/products', payload);
+    const { data } = await axiosInstance.post('/trading/products', payload);
     return data as any;
   },
   async updateProduct(id: string, payload: Partial<{ name: string; description: string; prices: Array<{ currency: 'IDR' | 'USD'; price: number }>; unit: string; weight: number; volume: string; }>) {
-    const { data } = await axiosInstance.put(`/api/trading/products/${id}`, payload);
+    const { data } = await axiosInstance.put(`/trading/products/${id}`, payload);
     return data as any;
   },
   async getSellerProducts() {
-    const { data } = await axiosInstance.get('/api/trading/seller/products');
+    const { data } = await axiosInstance.get('/trading/seller/products');
     return data as any[];
   },
   async adminListProducts() {
-    const { data } = await axiosInstance.get('/api/trading/admin/products');
+    const { data } = await axiosInstance.get('/trading/admin/products');
     return data as any[];
   },
   
   async getSellerProfileById(userId: string) {
-    const { data } = await axiosInstance.get(`/api/trading/seller/${userId}/profile`);
+    const { data } = await axiosInstance.get(`/trading/seller/${userId}/profile`);
     return data as any;
   },
   async approveProduct(id: string) {
-    const { data } = await axiosInstance.put(`/api/trading/admin/products/${id}/approve`, {});
+    const { data } = await axiosInstance.put(`/trading/admin/products/${id}/approve`, {});
     return data as any;
   },
   async rejectProduct(id: string, reason?: string) {
-    const { data } = await axiosInstance.put(`/api/trading/admin/products/${id}/reject`, { reason });
+    const { data } = await axiosInstance.put(`/trading/admin/products/${id}/reject`, { reason });
     return data as any;
   },
 
   // Orders
   async createOrder(payload: { productId: string; quantity: number; notes?: string; currency: 'IDR' | 'USD' }) {
-    const { data } = await axiosInstance.post('/api/trading/orders', payload);
+    const { data } = await axiosInstance.post('/trading/orders', payload);
     return data as any;
   },
   // Create a draft order from cart checkout with destination details
@@ -59,7 +59,7 @@ export const tradingService = {
     notes?: string | null;
   }) {
     try {
-      const { data } = await axiosInstance.post('/api/trading/orders/draft', payload);
+      const { data } = await axiosInstance.post('/trading/orders/draft', payload);
       return data as { id: string };
     } catch (err: any) {
       const status = err?.response?.status;
@@ -87,7 +87,7 @@ export const tradingService = {
             currency: ((raw as any)?.currency as 'IDR'|'USD') || 'USD',
           };
           try {
-            const { data } = await axiosInstance.post('/api/trading/orders', body);
+            const { data } = await axiosInstance.post('/trading/orders', body);
             if (data?.id) createdIds.push(data.id);
           } catch (e) {
             // continue other items; at least create some
@@ -101,34 +101,34 @@ export const tradingService = {
   async getOrders(params?: { status?: string }) {
     const qs = new URLSearchParams();
     if (params?.status) qs.set('status', params.status);
-    const { data } = await axiosInstance.get(`/api/trading/orders${qs.toString() ? `?${qs.toString()}` : ''}`);
+    const { data } = await axiosInstance.get(`/trading/orders${qs.toString() ? `?${qs.toString()}` : ''}`);
     return data as any[];
   },
   async adminListOrders(params?: { status?: string }) {
     const qs = new URLSearchParams();
     if (params?.status) qs.set('status', params.status);
-    const { data } = await axiosInstance.get(`/api/trading/orders${qs.toString() ? `?${qs.toString()}` : ''}`);
+    const { data } = await axiosInstance.get(`/trading/orders${qs.toString() ? `?${qs.toString()}` : ''}`);
     return data as any[];
   },
   async getOrder(id: string) {
-    const { data } = await axiosInstance.get(`/api/trading/orders/${id}`);
+    const { data } = await axiosInstance.get(`/trading/orders/${id}`);
     return data as any;
   },
   // Admin: set fixed prices per order item based on destination
   async setOrderFixedPrices(orderId: string, payload: { items: Array<{ orderItemId?: string; productId?: string; fixedUnitPrice: number; currency: 'IDR' | 'USD' }> }) {
-    const { data } = await axiosInstance.put(`/api/trading/orders/${orderId}/fixed-prices`, payload);
+    const { data } = await axiosInstance.put(`/trading/orders/${orderId}/fixed-prices`, payload);
     return data as any;
   },
   async updateOrderStatus(id: string, payload: { status: 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'COMPLETED' | 'CANCELLED' }) {
-    const { data } = await axiosInstance.put(`/api/trading/orders/${id}/status`, payload);
+    const { data } = await axiosInstance.put(`/trading/orders/${id}/status`, payload);
     return data as any;
   },
   async createShipment(orderId: string, payload: { method: 'AIR' | 'SEA' | 'EXPRESS' }) {
-    const { data } = await axiosInstance.post(`/api/trading/orders/${orderId}/shipment`, payload);
+    const { data } = await axiosInstance.post(`/trading/orders/${orderId}/shipment`, payload);
     return data as any;
   },
   async updateShipmentStatus(id: string, payload: { status: 'PENDING' | 'IN_TRANSIT' | 'DELIVERED' }) {
-    const { data } = await axiosInstance.put(`/api/trading/shipments/${id}/status`, payload);
+    const { data } = await axiosInstance.put(`/trading/shipments/${id}/status`, payload);
     return data as any;
   },
   async updateShipment(
@@ -146,37 +146,37 @@ export const tradingService = {
       currency?: string | null;
     }
   ) {
-    const { data } = await axiosInstance.put(`/api/trading/shipments/${id}`, payload);
+    const { data } = await axiosInstance.put(`/trading/shipments/${id}`, payload);
     return data as any;
   },
 
   // Seller profile
   async getSellerProfile() {
-    const { data } = await axiosInstance.get('/api/trading/seller/profile');
+    const { data } = await axiosInstance.get('/trading/seller/profile');
     return data as any;
   },
   async upsertSellerProfile(payload: { country?: string; province?: string; city?: string; address?: string }) {
-    const { data } = await axiosInstance.put('/api/trading/seller/profile', payload);
+    const { data } = await axiosInstance.put('/trading/seller/profile', payload);
     return data as any;
   },
 
   // Shipping methods
   async listShippingMethods() {
-    const { data } = await axiosInstance.get('/api/trading/shipping/methods');
+    const { data } = await axiosInstance.get('/trading/shipping/methods');
     return data as { code: string; label: string }[];
   },
 
   // Analytics
   async getAdminTradingAnalytics() {
-    const { data } = await axiosInstance.get('/api/trading/admin/analytics');
+    const { data } = await axiosInstance.get('/trading/admin/analytics');
     return data as { totalProducts: number; pendingProducts: number; totalOrders: number; ordersByStatus: Record<string, number>; totalRevenue: number };
   },
   async getBuyerAnalytics() {
-    const { data } = await axiosInstance.get('/api/trading/buyer/analytics');
+    const { data } = await axiosInstance.get('/trading/buyer/analytics');
     return data as { totalOrders: number; pendingOrders: number; totalSpent: number; recentOrders: any[] };
   },
   async getSellerAnalytics() {
-    const { data } = await axiosInstance.get('/api/trading/seller/analytics');
+    const { data } = await axiosInstance.get('/trading/seller/analytics');
     return data as { totalProducts: number; totalOrders: number; totalRevenue: number; pendingShipments: number; recentOrders: any[]; topProducts: { id: string; name: string; sold: number; revenue: number }[] };
   },
 
@@ -185,7 +185,7 @@ export const tradingService = {
     cover?: { url: string; filename: string; originalName: string; size: number; mimeType: string } | null;
     previews?: Array<{ url: string; filename: string; originalName: string; size: number; mimeType: string }>;
   }) {
-    const { data } = await axiosInstance.put(`/api/trading/products/${productId}/images`, payload);
+    const { data } = await axiosInstance.put(`/trading/products/${productId}/images`, payload);
     return data as any;
   },
 };

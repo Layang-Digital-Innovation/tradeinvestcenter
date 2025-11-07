@@ -9,11 +9,11 @@ export interface PlatformBankSettingsDto {
 
 export const settingsService = {
   async getPlatformBankSettings() {
-    const { data } = await axiosInstance.get('/api/settings/platform-bank');
+    const { data } = await axiosInstance.get('/settings/platform-bank');
     return data as PlatformBankSettingsDto & { id?: string };
   },
   async updatePlatformBankSettings(payload: PlatformBankSettingsDto) {
-    const { data } = await axiosInstance.put('/api/settings/platform-bank', payload);
+    const { data } = await axiosInstance.put('/settings/platform-bank', payload);
     return data as PlatformBankSettingsDto & { id?: string };
   }
 };

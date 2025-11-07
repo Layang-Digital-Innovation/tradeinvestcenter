@@ -2,19 +2,19 @@ import axiosInstance from '@/utils/axiosConfig';
 
 export const dashboardService = {
   async getDashboard() {
-    const { data } = await axiosInstance.get('/api/dashboard');
+    const { data } = await axiosInstance.get('/dashboard');
     return data;
   },
   async getSummary() {
-    const { data } = await axiosInstance.get('/api/dashboard/summary');
+    const { data } = await axiosInstance.get('/dashboard/summary');
     return data;
   },
   async getStats() {
-    const { data } = await axiosInstance.get('/api/dashboard/stats');
+    const { data } = await axiosInstance.get('/dashboard/stats');
     return data;
   },
   async getUserAnalytics() {
-    const { data } = await axiosInstance.get('/api/dashboard/analytics/users');
+    const { data } = await axiosInstance.get('/dashboard/analytics/users');
     return data as {
       totalUsers: number;
       usersByRole: { role: string; count: number }[];
@@ -25,7 +25,7 @@ export const dashboardService = {
   async getSubscriptionAnalytics(params?: { currency?: string }) {
     const query = new URLSearchParams();
     if (params?.currency) query.set('currency', params.currency);
-    const { data } = await axiosInstance.get(`/api/dashboard/analytics/subscriptions${query.toString() ? `?${query.toString()}` : ''}`);
+    const { data } = await axiosInstance.get(`/dashboard/analytics/subscriptions${query.toString() ? `?${query.toString()}` : ''}`);
     return data as {
       totalSubscriptions: number;
       activeSubscriptions: number;
@@ -38,7 +38,7 @@ export const dashboardService = {
     };
   },
   async getRevenueAnalytics() {
-    const { data } = await axiosInstance.get('/api/dashboard/analytics/revenue');
+    const { data } = await axiosInstance.get('/dashboard/analytics/revenue');
     return data as {
       totalRevenue: number;
       monthlyRevenue: { month: string; value: number }[];
