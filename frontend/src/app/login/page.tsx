@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -12,14 +12,27 @@ import authService from '@/services/auth.service';
 // Force this page to render dynamically at request time to avoid build-time prerendering
 export const dynamic = 'force-dynamic';
 
+function RegisteredMessageEffect({ onDetected }: { onDetected: (show: boolean) => void }) {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const registered = searchParams.get('registered');
+    if (registered === 'true') {
+      onDetected(true);
+      const timeoutId = setTimeout(() => onDetected(false), 5000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [searchParams, onDetected]);
+
+  return null;
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const { login, loading, error, isAuthenticated } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const registered = searchParams.get('registered');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   useEffect(() => {
@@ -31,15 +44,9 @@ export default function LoginPage() {
     
     // Add a small delay to prevent immediate redirects
     const timeoutId = setTimeout(checkAuth, 100);
-    
-    // Show success message if user just registered
-    if (registered === 'true') {
-      setShowSuccessMessage(true);
-      setTimeout(() => setShowSuccessMessage(false), 5000);
-    }
-    
+
     return () => clearTimeout(timeoutId);
-  }, [isAuthenticated, router, registered]);
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +61,9 @@ export default function LoginPage() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-sm"
       >
+        <Suspense fallback={null}>
+          <RegisteredMessageEffect onDetected={setShowSuccessMessage} />
+        </Suspense>
         {showSuccessMessage && (
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
