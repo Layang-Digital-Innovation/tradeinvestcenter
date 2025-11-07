@@ -25,5 +25,5 @@ RUN npm run build
 EXPOSE 3001
 ENV NODE_ENV=production
 
-# Run migrations at container start (envs provided by Dokploy)
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+# Run migrations and seed at container start (idempotent upserts), then start app
+CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed && node dist/main"]
