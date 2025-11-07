@@ -9,11 +9,12 @@ COPY package*.json ./
 RUN npm ci
 
 COPY tsconfig*.json ./
+COPY tsconfig.build.json ./
 COPY prisma ./prisma
 COPY src ./src
 
 # Provide placeholder DATABASE_URL so prisma generate can read schema
-ENV DATABASE_URL="postgresql://postgres:admin123@trade-invest-center-dbtradeinvestcenter-guhia7:5432/db_tradeinvestcenter"
+ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder?schema=public"
 
 # Generate Prisma client for TypeScript compilation
 RUN npx prisma generate
