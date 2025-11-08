@@ -13,11 +13,6 @@ services:
       - db-data:/var/lib/postgresql/data
     networks:
       - tic-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   backend:
     build:
@@ -54,12 +49,6 @@ services:
       - tic-network
     expose:
       - "3001"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"] || exit 1
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
   frontend:
     build:
@@ -85,12 +74,6 @@ services:
       - tic-network
     expose:
       - "3000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"] || exit 1
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
 volumes:
   db-data:
