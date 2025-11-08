@@ -11,6 +11,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
       - db-data:/var/lib/postgresql/data
+    networks:
+      - tic-network
 
   backend:
     build:
