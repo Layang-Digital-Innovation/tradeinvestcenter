@@ -22,6 +22,9 @@ async function bootstrap() {
   // Set global prefix
   app.setGlobalPrefix('api');
   
+
+
+  
   // Serve static files for uploads
   const uploadsPath = join(__dirname, '..', '..', 'uploads');
   console.log('Static files path:', uploadsPath);
