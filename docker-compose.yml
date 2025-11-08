@@ -13,6 +13,11 @@ services:
       - db-data:/var/lib/postgresql/data
     networks:
       - tic-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
@@ -21,33 +26,39 @@ services:
     container_name: tic-backend
     restart: unless-stopped
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       NODE_ENV: production
       PORT: 3001
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/tradeinvestcenter?schema=public
-      APP_URL: https://tradeinvestcenter.com
-      FRONTEND_URL: https://tradeinvestcenter.com
+      APP_URL: ${APP_URL:-https://tradeinvestcenter.com}
+      FRONTEND_URL: ${FRONTEND_URL:-https://tradeinvestcenter.com}
       JWT_SECRET: ${JWT_SECRET:-change-me}
       XENDIT_SECRET_KEY: ${XENDIT_SECRET_KEY:-}
       PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID:-}
       PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET:-}
     labels:
       - "traefik.enable=true"
-      # Backend routing untuk /api/*
-      - "traefik.http.routers.tic-backend.rule=Host(`tradeinvestcenter.com`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.tic-backend.entrypoints=websecure"
-      - "traefik.http.routers.tic-backend.tls.certresolver=myresolver"
-      # Strip /api prefix sebelum forward ke backend
-      - "traefik.http.middlewares.tic-backend-strip.stripprefix.prefixes=/api"
-      - "traefik.http.routers.tic-backend.middlewares=tic-backend-strip"
-      # Service configuration
-      - "traefik.http.services.tic-backend.loadbalancer.server.port=3001"
-      - "traefik.http.routers.tic-backend.service=tic-backend"
+      - "traefik.http.routers.backend-api.rule=Host(`tradeinvestcenter.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend-api.entrypoints=websecure"
+      - "traefik.http.routers.backend-api.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.backend-strip-api.stripprefix.prefixes=/api"
+      - "traefik.http.routers.backend-api.middlewares=backend-strip-api"
+      - "traefik.http.services.backend-api.loadbalancer.server.port=3001"
+      - "traefik.http.routers.backend-api.service=backend-api"
+      - "traefik.http.routers.backend-api.priority=100"
     volumes:
       - uploads-data:/app/uploads
     networks:
       - tic-network
+    expose:
+      - "3001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   frontend:
     build:
@@ -57,22 +68,26 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
-      NEXT_PUBLIC_API_URL: https://tradeinvestcenter.com/api
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://tradeinvestcenter.com/api}
     labels:
       - "traefik.enable=true"
-      # Frontend routing untuk root domain
       - "traefik.http.routers.tic-frontend.rule=Host(`tradeinvestcenter.com`)"
       - "traefik.http.routers.tic-frontend.entrypoints=websecure"
-      - "traefik.http.routers.tic-frontend.tls.certresolver=myresolver"
-      # Frontend hanya handle request non-/api
+      - "traefik.http.routers.tic-frontend.tls.certresolver=letsencrypt"
       - "traefik.http.routers.tic-frontend.priority=1"
-      # Service configuration
       - "traefik.http.services.tic-frontend.loadbalancer.server.port=3000"
       - "traefik.http.routers.tic-frontend.service=tic-frontend"
     depends_on:
       - backend
     networks:
       - tic-network
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   db-data:
