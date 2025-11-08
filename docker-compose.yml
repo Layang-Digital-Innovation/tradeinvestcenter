@@ -59,10 +59,10 @@ services:
       - "traefik.http.routers.tic-backend.tls.certresolver=myresolver"
       - "traefik.http.routers.tic-backend.middlewares=tic-backend-strip"
       - "traefik.http.routers.tic-backend.service=tic-backend"
-    ports:
-      - "3000:3000"
     depends_on:
       - backend
+    expose:
+      - "3000"
     networks:
       - tic-network
 
