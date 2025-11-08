@@ -13,16 +13,15 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
-    // If BACKEND_URL is set (e.g., https://api.tradeinvestcenter.com or http://backend:3001/api),
-    // proxy `/api/*` to that backend target. This fixes 404 when Next handles `/api`.
-    // Fallback to local backend if env not provided (useful for local dev)
+    const isProd = process.env.NODE_ENV === 'production';
+    // In production, DO NOT fallback to localhost; require BACKEND_URL to be set.
+    // In development, fallback to local backend if env not provided.
     const dst = (BACKEND_URL && BACKEND_URL.length > 0)
       ? (BACKEND_URL.endsWith('/') ? BACKEND_URL.slice(0, -1) : BACKEND_URL)
-      : 'http://localhost:3001/api';
+      : (isProd ? '' : 'http://localhost:3001/api');
+    if (!dst) return [];
     const base = dst.endsWith('/api') ? dst : `${dst}/api`;
-    return [
-      { source: '/api/:path*', destination: `${base}/:path*` },
-    ];
+    return [{ source: '/api/:path*', destination: `${base}/:path*` }];
   },
   // Disable strict mode to prevent double rendering in development
   reactStrictMode: false,

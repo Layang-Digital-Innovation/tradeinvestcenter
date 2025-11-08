@@ -10,13 +10,13 @@ const nextConfig = {
   },
   async rewrites() {
     const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
+    const isProd = process.env.NODE_ENV === 'production';
     const dst = (BACKEND_URL && BACKEND_URL.length > 0)
       ? (BACKEND_URL.endsWith('/') ? BACKEND_URL.slice(0, -1) : BACKEND_URL)
-      : 'http://localhost:3001/api';
+      : (isProd ? '' : 'http://localhost:3001/api');
+    if (!dst) return [];
     const base = dst.endsWith('/api') ? dst : `${dst}/api`;
-    return [
-      { source: '/api/:path*', destination: `${base}/:path*` },
-    ];
+    return [{ source: '/api/:path*', destination: `${base}/:path*` }];
   },
   async headers() {
     return [
