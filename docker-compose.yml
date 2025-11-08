@@ -47,7 +47,7 @@ services:
       - "traefik.http.routers.backend-api.middlewares=backend-strip-api"
       - "traefik.http.services.backend-api.loadbalancer.server.port=3001"
       - "traefik.http.routers.backend-api.service=backend-api"
-      - "traefik.http.routers.backend-api.priority=100"
+      - "traefik.http.routers.backend-api.priority=10"
     volumes:
       - uploads-data:/app/uploads
     networks:
@@ -77,6 +77,7 @@ services:
       - "traefik.http.routers.tic-frontend.priority=1"
       - "traefik.http.services.tic-frontend.loadbalancer.server.port=3000"
       - "traefik.http.routers.tic-frontend.service=tic-frontend"
+      - "traefik.http.middlewares.tic-frontend-headers.headers.customresponseheaders.X-Frame-Options=SAMEORIGIN"
     depends_on:
       - backend
     networks:
