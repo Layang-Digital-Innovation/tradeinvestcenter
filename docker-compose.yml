@@ -21,7 +21,7 @@ services:
     container_name: tic-backend
     restart: unless-stopped
     depends_on:
-      db:
+      - db
     environment:
       NODE_ENV: production
       PORT: 3001
