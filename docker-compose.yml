@@ -32,8 +32,18 @@ services:
       XENDIT_SECRET_KEY: ${XENDIT_SECRET_KEY:-}
       PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID:-}
       PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET:-}
-    expose:
-      - "3001"
+    labels:
+      - "traefik.enable=true"
+      # Backend routing untuk /api/*
+      - "traefik.http.routers.tic-backend.rule=Host(`tradeinvestcenter.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.tic-backend.entrypoints=websecure"
+      - "traefik.http.routers.tic-backend.tls.certresolver=myresolver"
+      # Strip /api prefix sebelum forward ke backend
+      - "traefik.http.middlewares.tic-backend-strip.stripprefix.prefixes=/api"
+      - "traefik.http.routers.tic-backend.middlewares=tic-backend-strip"
+      # Service configuration
+      - "traefik.http.services.tic-backend.loadbalancer.server.port=3001"
+      - "traefik.http.routers.tic-backend.service=tic-backend"
     volumes:
       - uploads-data:/app/uploads
     networks:
@@ -50,21 +60,17 @@ services:
       NEXT_PUBLIC_API_URL: https://tradeinvestcenter.com/api
     labels:
       - "traefik.enable=true"
+      # Frontend routing untuk root domain
       - "traefik.http.routers.tic-frontend.rule=Host(`tradeinvestcenter.com`)"
       - "traefik.http.routers.tic-frontend.entrypoints=websecure"
       - "traefik.http.routers.tic-frontend.tls.certresolver=myresolver"
-      # Forward /api/* to backend service (internal)
-      - "traefik.http.middlewares.tic-backend-strip.stripPrefix.prefixes=/api"
-      - "traefik.http.services.tic-backend.loadbalancer.server.port=3001"
-      - "traefik.http.routers.tic-backend.rule=Host(`tradeinvestcenter.com`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.tic-backend.entrypoints=websecure"
-      - "traefik.http.routers.tic-backend.tls.certresolver=myresolver"
-      - "traefik.http.routers.tic-backend.middlewares=tic-backend-strip"
-      - "traefik.http.routers.tic-backend.service=tic-backend"
+      # Frontend hanya handle request non-/api
+      - "traefik.http.routers.tic-frontend.priority=1"
+      # Service configuration
+      - "traefik.http.services.tic-frontend.loadbalancer.server.port=3000"
+      - "traefik.http.routers.tic-frontend.service=tic-frontend"
     depends_on:
       - backend
-    expose:
-      - "3000"
     networks:
       - tic-network
 
