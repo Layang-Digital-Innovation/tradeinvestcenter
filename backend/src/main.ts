@@ -22,6 +22,11 @@ async function bootstrap() {
   // Set global prefix
   app.setGlobalPrefix('api');
   
+  // Health check endpoint (without /api prefix)
+  app.getHttpAdapter().get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
+  });
+  
   // Serve static files for uploads
   const uploadsPath = join(__dirname, '..', '..', 'uploads');
   console.log('Static files path:', uploadsPath);
