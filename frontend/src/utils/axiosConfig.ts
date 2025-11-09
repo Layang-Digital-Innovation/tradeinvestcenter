@@ -2,9 +2,33 @@ import axios from 'axios';
 import authService from '@/services/auth.service';
 import { toast } from 'react-toastify';
 
-// Buat instance axios
+// Buat instance axios dengan baseURL yang dinormalisasi
+const normalizeApiBase = () => {
+  const raw = process.env.NEXT_PUBLIC_API_URL?.trim();
+  const isProd = process.env.NODE_ENV === 'production';
+
+  if (raw && raw.length > 0) {
+    const noTrailingSlash = raw.replace(/\/+$/, '');
+    // Pastikan selalu mengarah ke root API (`.../api`), hindari duplikasi
+    return noTrailingSlash.endsWith('/api') ? noTrailingSlash : `${noTrailingSlash}/api`;
+  }
+
+  // Fallback pengembang: gunakan backend lokal
+  if (!isProd) {
+    return 'http://localhost:3001/api';
+  }
+
+  // Di production, tanpa konfigurasi API akan berpotensi 404.
+  // Log agar mudah didiagnosis dan tetap kembalikan '/api' untuk visibilitas error.
+  if (typeof window !== 'undefined') {
+    // eslint-disable-next-line no-console
+    console.error('[API] NEXT_PUBLIC_API_URL tidak disetel. Set ke base backend (mis. https://api.domain.com).');
+  }
+  return '/api';
+};
+
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
+  baseURL: normalizeApiBase(),
   withCredentials: true,
 });
 
