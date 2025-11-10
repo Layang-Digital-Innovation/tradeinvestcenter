@@ -70,6 +70,16 @@ export default function SubscriptionPage() {
     return d ? new Date(d).getTime() < Date.now() : false;
   }, [sub]);
 
+  const labelName = useMemo(() => {
+    const direct = sub?.label?.name;
+    if (direct && typeof direct === 'string' && direct.trim()) return direct;
+    const fromUser = sub?.user?.labelInvestors?.[0]?.label?.name;
+    if (fromUser && typeof fromUser === 'string' && fromUser.trim()) return fromUser;
+    const fromPaymentMeta = (payments || []).find((p: any) => p?.metadata?.labelName)?.metadata?.labelName;
+    if (fromPaymentMeta && typeof fromPaymentMeta === 'string' && fromPaymentMeta.trim()) return fromPaymentMeta;
+    return '';
+  }, [sub, payments]);
+
   const handleRenewGold = async () => {
     setBuying(true);
     setError(null);
@@ -212,7 +222,7 @@ export default function SubscriptionPage() {
               </div>
               <div>
                 <div className="text-gray-600">Label/Organisasi</div>
-                <div className="text-black font-medium">{sub?.label?.name || '-'}</div>
+                <div className="text-black font-medium">{labelName || '-'}</div>
               </div>
               <div>
                 <div className="text-gray-600">Period End</div>
