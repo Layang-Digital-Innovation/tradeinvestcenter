@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
+import { useEffect, useRef, useState } from 'react';
 import {
   FiHome,
   FiShield,
@@ -26,6 +27,38 @@ export default function BottomNav() {
   const pathname = usePathname();
   const { user } = useAuth();
   const { isSuperAdmin } = usePermissions();
+  const navRef = useRef<HTMLDivElement | null>(null);
+  const [navHeight, setNavHeight] = useState<number>(56);
+
+  // Reserve space for bottom nav on mobile so content never hides it
+  useEffect(() => {
+    const updatePadding = () => {
+      if (typeof window === 'undefined') return;
+      const isMobile = window.innerWidth < 768;
+      const height = navRef.current?.getBoundingClientRect().height || 56;
+      setNavHeight(height);
+      if (isMobile) {
+        document.body.style.paddingBottom = `${height}px`;
+      } else {
+        document.body.style.paddingBottom = '';
+      }
+    };
+
+    updatePadding();
+    window.addEventListener('resize', updatePadding);
+    // Adjust when virtual keyboard opens/closes on mobile
+    if (typeof window !== 'undefined' && (window as any).visualViewport) {
+      (window as any).visualViewport.addEventListener('resize', updatePadding);
+    }
+
+    return () => {
+      window.removeEventListener('resize', updatePadding);
+      if (typeof window !== 'undefined' && (window as any).visualViewport) {
+        (window as any).visualViewport.removeEventListener('resize', updatePadding);
+      }
+      document.body.style.paddingBottom = '';
+    };
+  }, []);
 
   const role = user?.user?.role as string | undefined;
 
@@ -96,12 +129,20 @@ export default function BottomNav() {
   }
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-white border-t shadow-sm">
-      <nav className="grid grid-cols-4 gap-0">
+    <div
+      ref={navRef}
+      className="md:hidden fixed bottom-0 inset-x-0 z-[80] border-t shadow-sm backdrop-blur bg-white/90"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+    >
+      <nav className="grid grid-cols-4 gap-0 py-2">
         {items.map((item) => {
           const active = pathname ? pathname.startsWith(item.href) : false;
           return (
-            <Link key={item.href} href={item.href} className={`flex flex-col items-center justify-center py-2 text-[11px] ${active ? 'text-purple-700' : 'text-gray-600'}`}>
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex flex-col items-center justify-center text-[12px] ${active ? 'text-purple-700' : 'text-gray-700'}`}
+            >
               <span>{item.icon}</span>
               <span className="mt-0.5 truncate max-w-[72px]">{item.name}</span>
             </Link>

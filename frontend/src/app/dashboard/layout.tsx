@@ -93,7 +93,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       />
 
       {/* Main content */}
-        <div className={`${isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'} pt-16 flex-1 flex flex-col transition-all duration-300`}>
+        <div className={`${isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'} pt-0 flex-1 flex flex-col transition-all duration-300`}>
         <main className="flex-1 pb-14 md:pb-0">
           <div className="py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
