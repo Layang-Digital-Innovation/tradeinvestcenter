@@ -25,5 +25,9 @@ RUN npm run build
 EXPOSE 3001
 ENV NODE_ENV=production
 
-# Run migrations and seed at container start (idempotent upserts), then start app
-CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed && node dist/main"]
+# Copy entrypoint and use it to optionally run migrate/seed
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
+
+# Default command: entrypoint controls migrate/seed via env flags
+CMD ["sh", "./docker-entrypoint.sh"]

@@ -1,6 +1,15 @@
 import { User, CreateUserRequest, UpdateUserRequest, UserFilters, UserListResponse } from '@/types/user.types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+const normalizeApiBase = (): string => {
+  const raw = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (raw && raw.length > 0) {
+    const noTrailingSlash = raw.replace(/\/+$/, '');
+    return noTrailingSlash.endsWith('/api') ? noTrailingSlash : `${noTrailingSlash}/api`;
+  }
+  return '/api';
+};
+
+const API_BASE_URL = normalizeApiBase();
 
 class UserService {
   private async getAuthHeaders(): Promise<HeadersInit> {
