@@ -9,12 +9,11 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   async rewrites() {
-    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
-    const isProd = process.env.NODE_ENV === 'production';
-    const dst = (BACKEND_URL && BACKEND_URL.length > 0)
-      ? (BACKEND_URL.endsWith('/') ? BACKEND_URL.slice(0, -1) : BACKEND_URL)
-      : (isProd ? '' : 'http://localhost:3001/api');
-    if (!dst) return [];
+    // Prefer internal backend URL for server-side proxy to avoid Traefik loop
+    const RAW_BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL
+      || process.env.BACKEND_URL
+      || 'http://localhost:3001';
+    const dst = RAW_BACKEND.endsWith('/') ? RAW_BACKEND.slice(0, -1) : RAW_BACKEND;
     const base = dst.endsWith('/api') ? dst : `${dst}/api`;
     return [{ source: '/api/:path*', destination: `${base}/:path*` }];
   },

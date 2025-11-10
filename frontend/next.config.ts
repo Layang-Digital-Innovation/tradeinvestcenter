@@ -12,13 +12,13 @@ const nextConfig: NextConfig = {
     return [];
   },
   async rewrites() {
-    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
-    // If BACKEND_URL is set (e.g., https://api.tradeinvestcenter.com or http://backend:3001/api),
-    // proxy `/api/*` to that backend target. This fixes 404 when Next handles `/api`.
-    // Fallback to local backend if env not provided (useful for local dev)
-    const dst = (BACKEND_URL && BACKEND_URL.length > 0)
-      ? (BACKEND_URL.endsWith('/') ? BACKEND_URL.slice(0, -1) : BACKEND_URL)
-      : 'http://localhost:3001/api';
+    // Use internal backend URL for server-side proxying to avoid Traefik roundtrip
+    // Prefer NEXT_PUBLIC_BACKEND_URL (e.g., http://tic-backend:3001),
+    // fallback to BACKEND_URL, then local dev.
+    const RAW_BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL
+      || process.env.BACKEND_URL
+      || 'http://localhost:3001';
+    const dst = RAW_BACKEND.endsWith('/') ? RAW_BACKEND.slice(0, -1) : RAW_BACKEND;
     const base = dst.endsWith('/api') ? dst : `${dst}/api`;
     return [
       { source: '/api/:path*', destination: `${base}/:path*` },
