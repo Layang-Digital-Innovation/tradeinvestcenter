@@ -170,9 +170,21 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         
         const uploadFormData = new FormData();
         uploadFormData.append('file', prospectusFile);
+
+        // Normalisasi base URL API: gunakan NEXT_PUBLIC_API_URL (otomatis tambahkan /api),
+        // jika tidak ada gunakan path relatif '/api' agar sesuai domain produksi
+        const normalizeApiBase = (): string => {
+          const raw = process.env.NEXT_PUBLIC_API_URL?.trim();
+          if (raw && raw.length > 0) {
+            const noTrailingSlash = raw.replace(/\/+$/, '');
+            return noTrailingSlash.endsWith('/api') ? noTrailingSlash : `${noTrailingSlash}/api`;
+          }
+          return '/api';
+        };
+        const API_BASE_URL = normalizeApiBase();
         
         // Upload file to backend
-        const response = await fetch('http://localhost:3001/api/upload/prospectus', {
+        const response = await fetch(`${API_BASE_URL}/upload/prospectus`, {
           method: 'POST',
           headers: {
             ...getAuthHeaders(),

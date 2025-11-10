@@ -4,7 +4,8 @@ const normalizeApiBase = (): string => {
     const noTrailingSlash = raw.replace(/\/+$/, '');
     return noTrailingSlash.endsWith('/api') ? noTrailingSlash : `${noTrailingSlash}/api`;
   }
-  return 'http://localhost:3001/api';
+  const isProd = process.env.NODE_ENV === 'production';
+  return isProd ? '/api' : 'http://localhost:3001/api';
 };
 
 const API_BASE_URL = normalizeApiBase();

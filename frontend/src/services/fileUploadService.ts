@@ -1,8 +1,17 @@
 import axios, { AxiosProgressEvent } from 'axios';
 import { ReportType } from '@/types/investment.types';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-const API_URL = `${API_BASE}/api`;
+// Normalisasi base URL agar tidak jatuh ke localhost di production
+const normalizeApiBase = (): string => {
+  const raw = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (raw && raw.length > 0) {
+    const noTrailingSlash = raw.replace(/\/+$/, '');
+    return noTrailingSlash.endsWith('/api') ? noTrailingSlash : `${noTrailingSlash}/api`;
+  }
+  const isProd = process.env.NODE_ENV === 'production';
+  return isProd ? '/api' : 'http://localhost:3001/api';
+};
+const API_URL = normalizeApiBase();
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -178,7 +187,19 @@ class FileUploadService {
    */
   async downloadFile(fileUrl: string, filename: string): Promise<void> {
     try {
-      const BACKEND_BASE = (typeof process !== 'undefined' && process.env && (process.env.NEXT_PUBLIC_BACKEND_URL as string)) || 'http://localhost:3001';
+      const normalizeBackendBase = (): string => {
+        const raw = process.env.NEXT_PUBLIC_API_URL?.trim();
+        if (raw && raw.length > 0) {
+          // Hilangkan trailing slash dan '/api' karena fileUrl biasanya bukan di bawah /api
+          return raw.replace(/\/+$/, '').replace(/\/api$/, '');
+        }
+        const isProd = process.env.NODE_ENV === 'production';
+        if (typeof window !== 'undefined' && isProd) {
+          return window.location.origin;
+        }
+        return 'http://localhost:3001';
+      };
+      const BACKEND_BASE = normalizeBackendBase();
       const url = `${BACKEND_BASE}${fileUrl}`;
       // Open the file in a new tab; browser will handle viewing/downloading the PDF
       window.open(url, '_blank');
