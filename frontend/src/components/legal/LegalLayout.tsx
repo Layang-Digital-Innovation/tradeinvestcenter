@@ -22,7 +22,7 @@ export default function LegalLayout({ title, updatedAt, updatedLabel, children }
       </section>
       <main className="max-w-6xl mx-auto px-6 py-10">
         <div className="bg-white shadow-lg rounded-xl border border-purple-100">
-          <div className="px-6 sm:px-8 py-8 prose prose-purple max-w-none prose-headings:text-black prose-p:text-black prose-li:text-black prose-strong:text-black">
+          <div className="px-6 sm:px-8 py-8 prose max-w-none text-black prose-h1:text-black prose-h2:text-black prose-h3:text-black prose-p:text-black prose-li:text-black prose-strong:text-black prose-a:text-black">
             {children}
           </div>
         </div>
