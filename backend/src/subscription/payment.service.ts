@@ -91,8 +91,8 @@ export class PaymentService {
             payment_method: "paypal"
           },
           redirect_urls: {
-            return_url: `${baseUrl}/api/subscription/payment/paypal/execute?paymentId=${payment.id}`,
-            cancel_url: `${baseUrl}/api/subscription/payment/cancel`
+            return_url: `${baseUrl}/subscription/payment/paypal/execute?paymentId=${payment.id}`,
+            cancel_url: `${baseUrl}/subscription/payment/cancel`
           },
           transactions: [{
             amount: {

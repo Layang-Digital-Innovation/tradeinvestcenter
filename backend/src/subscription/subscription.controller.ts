@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request, Query, Res, Header, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Request, Query, Res, Header, Put, Delete, Logger } from '@nestjs/common';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { SubscriptionService } from './subscription.service';
@@ -22,6 +22,7 @@ export class SubscriptionController {
     private readonly configService: ConfigService,
     
   ) {}
+  private readonly logger = new Logger(SubscriptionController.name);
 
   @Get('plans')
   async getSubscriptionPlans() {
@@ -77,8 +78,14 @@ export class SubscriptionController {
     // Multi-currency: if creating USD with PayPal, use PayPal integration; otherwise persist locally (e.g., IDR/Xendit)
     const currency = (data.currency || 'USD').toUpperCase();
     const provider = (data.provider || (currency === 'USD' ? 'PAYPAL' : 'XENDIT')).toUpperCase();
+    this.logger.log(`Create billing plan requested: provider=${provider}, currency=${currency}, plan=${data.plan}, price=${data.price}, period=${data.period || 'MONTHLY'}, name=${data.name || ''}`);
     if (currency === 'USD' && provider === 'PAYPAL') {
-      return this.paypalSubscriptionService.createBillingPlan(data.plan, data.price, data.period, data.name);
+      try {
+        return await this.paypalSubscriptionService.createBillingPlan(data.plan, data.price, data.period, data.name);
+      } catch (e: any) {
+        this.logger.warn(`Create PayPal billing plan failed: ${e?.message || e}`);
+        throw e;
+      }
     }
     // Fallback/local create for non-PayPal or non-USD (e.g., IDR/Xendit)
     return this.subscriptionService.createLocalBillingPlan({

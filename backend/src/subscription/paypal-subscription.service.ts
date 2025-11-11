@@ -81,8 +81,11 @@ export class PaypalSubscriptionService {
             const status = (error as any)?.httpStatusCode || (error as any)?.response?.httpStatusCode;
             const errName = (error as any)?.response?.name || (error as any)?.name;
             const errMsg = (error as any)?.response?.message || (error as any)?.message || 'unknown error';
-            this.logger.error(`PayPal Create Billing Plan Error [${status || 'n/a'} ${errName || ''}]: ${errMsg}`);
-            reject(new BadRequestException(`Gagal membuat billing plan PayPal: ${errName ? errName + ' - ' : ''}${errMsg}${status ? ` (Status ${status})` : ''}`));
+            const actionable = (status === 401 || (errName && ['INVALID_CLIENT','AUTHENTICATION_FAILURE'].includes(String(errName).toUpperCase())))
+              ? 'Pastikan PAYPAL_MODE=live dan gunakan Client ID/Secret dari tab Live (bukan Sandbox). Regenerate secret jika perlu.'
+              : '';
+            this.logger.error(`PayPal Create Billing Plan Error [${status || 'n/a'} ${errName || ''}]: ${errMsg} ${actionable ? '| Hint: ' + actionable : ''}`);
+            reject(new BadRequestException(`Gagal membuat billing plan PayPal: ${errName ? errName + ' - ' : ''}${errMsg}${status ? ` (Status ${status})` : ''}${actionable ? ` | ${actionable}` : ''}`));
             return;
           }
           
@@ -100,8 +103,11 @@ export class PaypalSubscriptionService {
               const status = (updateError as any)?.httpStatusCode || (updateError as any)?.response?.httpStatusCode;
               const errName = (updateError as any)?.response?.name || (updateError as any)?.name;
               const errMsg = (updateError as any)?.response?.message || (updateError as any)?.message || 'unknown error';
-              this.logger.error(`PayPal Update Billing Plan Error [${status || 'n/a'} ${errName || ''}]: ${errMsg}`);
-              reject(new BadRequestException(`Gagal mengaktifkan billing plan PayPal: ${errName ? errName + ' - ' : ''}${errMsg}${status ? ` (Status ${status})` : ''}`));
+              const actionable = (status === 401 || (errName && ['INVALID_CLIENT','AUTHENTICATION_FAILURE'].includes(String(errName).toUpperCase())))
+                ? 'Pastikan PAYPAL_MODE=live dan gunakan Client ID/Secret dari tab Live (bukan Sandbox). Regenerate secret jika perlu.'
+                : '';
+              this.logger.error(`PayPal Update Billing Plan Error [${status || 'n/a'} ${errName || ''}]: ${errMsg} ${actionable ? '| Hint: ' + actionable : ''}`);
+              reject(new BadRequestException(`Gagal mengaktifkan billing plan PayPal: ${errName ? errName + ' - ' : ''}${errMsg}${status ? ` (Status ${status})` : ''}${actionable ? ` | ${actionable}` : ''}`));
               return;
             }
                         (async () => {
