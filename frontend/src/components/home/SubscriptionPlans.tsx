@@ -1,10 +1,40 @@
 "use client";
 
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiCheck } from 'react-icons/fi';
 import Link from 'next/link';
+import { subscriptionService } from '@/services/subscription.service';
 
 const SubscriptionPlans = () => {
+  const [backendPlans, setBackendPlans] = useState<any[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await subscriptionService.getSubscriptionPlans();
+        setBackendPlans(Array.isArray(res) ? res : []);
+      } catch (e) {
+        // ignore silently on landing page
+      }
+    };
+    load();
+  }, []);
+
+  const goldMonthlyUSD = useMemo(() => backendPlans.find((p) => p.plan === 'GOLD_MONTHLY' && p.currency === 'USD'), [backendPlans]);
+  const goldMonthlyIDR = useMemo(() => backendPlans.find((p) => p.plan === 'GOLD_MONTHLY' && p.currency === 'IDR'), [backendPlans]);
+  const goldYearlyUSD = useMemo(() => backendPlans.find((p) => p.plan === 'GOLD_YEARLY' && p.currency === 'USD'), [backendPlans]);
+  const goldYearlyIDR = useMemo(() => backendPlans.find((p) => p.plan === 'GOLD_YEARLY' && p.currency === 'IDR'), [backendPlans]);
+
+  const fmtUSD = (n?: number) => {
+    if (typeof n !== 'number') return '-';
+    try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n); } catch { return `$${n}`; }
+  };
+  const fmtIDR = (n?: number) => {
+    if (typeof n !== 'number') return '-';
+    try { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n); } catch { return `Rp ${n.toLocaleString('id-ID')}`; }
+  };
+
   const plans = [
     {
       name: "Free Trial",
@@ -22,8 +52,8 @@ const SubscriptionPlans = () => {
     },
     {
       name: "Gold Plan",
-      price: "$49",
-      duration: "per month",
+      price: `${fmtUSD(goldMonthlyUSD?.price)} | ${fmtIDR(goldMonthlyIDR?.price)}`,
+      duration: "per month (USD | IDR)",
       features: [
         "Full access to platform",
         "Unlimited investment opportunities",
@@ -36,7 +66,7 @@ const SubscriptionPlans = () => {
       buttonText: "Subscribe Now",
       buttonLink: "/subscribe",
       highlighted: true,
-      yearlyPrice: "$499"
+      yearlyPrice: `${fmtUSD(goldYearlyUSD?.price)} | ${fmtIDR(goldYearlyIDR?.price)}`
     },
     {
       name: "Enterprise",
@@ -109,7 +139,7 @@ const SubscriptionPlans = () => {
                 
                 {plan.highlighted && (
                   <div className="mb-6 p-3 bg-purple-50 rounded-md text-center">
-                    <p className="text-purple-700 font-medium">Save 15% with yearly billing</p>
+                    <p className="text-purple-700 font-medium">Save 50% with yearly billing</p>
                     <p className="text-purple-900 font-bold mt-1">{plan.yearlyPrice} per year</p>
                   </div>
                 )}
