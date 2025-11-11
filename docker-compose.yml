@@ -30,6 +30,7 @@ services:
       FRONTEND_URL: ${FRONTEND_URL:-https://tradeinvestcenter.com}
       JWT_SECRET: ${JWT_SECRET:-change-me}
       XENDIT_SECRET_KEY: ${XENDIT_SECRET_KEY:-}
+      PAYPAL_MODE: ${PAYPAL_MODE:-live}
       PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID:-}
       PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET:-}
     labels:
