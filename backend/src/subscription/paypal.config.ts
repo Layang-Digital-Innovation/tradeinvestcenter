@@ -1,9 +1,10 @@
 import * as paypal from 'paypal-rest-sdk';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PaypalConfigService {
+  private readonly logger = new Logger(PaypalConfigService.name);
   constructor(private configService: ConfigService) {
     // Helper untuk membersihkan nilai env (hapus quotes/backticks, komentar inline) dan mode
     const clean = (v?: string) => (v || '')
@@ -25,6 +26,10 @@ export class PaypalConfigService {
       client_id: clientId,
       client_secret: clientSecret,
     });
+
+    // Logging ringan untuk verifikasi konfigurasi tanpa mengekspos secret
+    const clientIdInfo = clientId ? `${clientId.substring(0, 8)}... (len=${clientId.length})` : 'EMPTY';
+    this.logger.log(`PayPal SDK configured. mode=${mode}, clientId=${clientIdInfo}`);
   }
 
   getPaypalSDK() {
