@@ -78,8 +78,11 @@ export class PaypalSubscriptionService {
       return new Promise((resolve, reject) => {
         paypal.billingPlan.create(billingPlanAttributes, (error, billingPlan) => {
           if (error) {
-            this.logger.error(`PayPal Create Billing Plan Error: ${error.message}`);
-            reject(new BadRequestException(`Gagal membuat billing plan PayPal: ${error?.message || 'unknown error'}`));
+            const status = (error as any)?.httpStatusCode || (error as any)?.response?.httpStatusCode;
+            const errName = (error as any)?.response?.name || (error as any)?.name;
+            const errMsg = (error as any)?.response?.message || (error as any)?.message || 'unknown error';
+            this.logger.error(`PayPal Create Billing Plan Error [${status || 'n/a'} ${errName || ''}]: ${errMsg}`);
+            reject(new BadRequestException(`Gagal membuat billing plan PayPal: ${errName ? errName + ' - ' : ''}${errMsg}${status ? ` (Status ${status})` : ''}`));
             return;
           }
           
@@ -94,8 +97,11 @@ export class PaypalSubscriptionService {
 
           paypal.billingPlan.update(billingPlan.id, [billingPlanUpdateAttributes], (updateError) => {
             if (updateError) {
-              this.logger.error(`PayPal Update Billing Plan Error: ${updateError.message}`);
-              reject(new BadRequestException(`Gagal mengaktifkan billing plan PayPal: ${updateError?.message || 'unknown error'}`));
+              const status = (updateError as any)?.httpStatusCode || (updateError as any)?.response?.httpStatusCode;
+              const errName = (updateError as any)?.response?.name || (updateError as any)?.name;
+              const errMsg = (updateError as any)?.response?.message || (updateError as any)?.message || 'unknown error';
+              this.logger.error(`PayPal Update Billing Plan Error [${status || 'n/a'} ${errName || ''}]: ${errMsg}`);
+              reject(new BadRequestException(`Gagal mengaktifkan billing plan PayPal: ${errName ? errName + ' - ' : ''}${errMsg}${status ? ` (Status ${status})` : ''}`));
               return;
             }
                         (async () => {
