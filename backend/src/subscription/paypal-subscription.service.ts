@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { PaypalConfigService } from './paypal.config';
@@ -19,7 +19,16 @@ export class PaypalSubscriptionService {
    */
   async createBillingPlan(plan: SubscriptionPlan, price: number, period?: 'MONTHLY' | 'YEARLY', name?: string) {
      try {
+       const clientId = this.configService.get<string>('PAYPAL_CLIENT_ID');
+       const clientSecret = this.configService.get<string>('PAYPAL_CLIENT_SECRET');
+       if (!clientId || !clientSecret) {
+         this.logger.error('PayPal credentials are missing: PAYPAL_CLIENT_ID or PAYPAL_CLIENT_SECRET');
+         throw new BadRequestException('Konfigurasi PayPal belum disetel (client ID/secret). Hubungi admin.');
+       }
        const paypal = this.paypalConfigService.getPaypalSDK();
+       const appUrlRaw = this.configService.get<string>('APP_URL') || '';
+       const frontUrlRaw = this.configService.get<string>('FRONTEND_URL') || '';
+       const baseUrl = (appUrlRaw || frontUrlRaw || 'https://tradeinvestcenter.com').replace(/\/$/, '');
        
        // Tentukan durasi berdasarkan jenis plan atau period yang dikirim
        let frequency = 'MONTH';
@@ -53,8 +62,8 @@ export class PaypalSubscriptionService {
              currency: 'USD',
              value: '0' // No setup fee
            },
-           return_url: `${this.configService.get('APP_URL')}/api/subscription/billing-agreement/execute`,
-           cancel_url: `${this.configService.get('APP_URL')}/api/subscription/payment/cancel`,
+           return_url: `${baseUrl}/api/subscription/billing-agreement/execute`,
+           cancel_url: `${baseUrl}/api/subscription/payment/cancel`,
            auto_bill_amount: 'YES',
            initial_fail_amount_action: 'CONTINUE',
            max_fail_attempts: '3'
@@ -65,7 +74,7 @@ export class PaypalSubscriptionService {
         paypal.billingPlan.create(billingPlanAttributes, (error, billingPlan) => {
           if (error) {
             this.logger.error(`PayPal Create Billing Plan Error: ${error.message}`);
-            reject(error);
+            reject(new BadRequestException(`Gagal membuat billing plan PayPal: ${error?.message || 'unknown error'}`));
             return;
           }
           
@@ -81,7 +90,7 @@ export class PaypalSubscriptionService {
           paypal.billingPlan.update(billingPlan.id, [billingPlanUpdateAttributes], (updateError) => {
             if (updateError) {
               this.logger.error(`PayPal Update Billing Plan Error: ${updateError.message}`);
-              reject(updateError);
+              reject(new BadRequestException(`Gagal mengaktifkan billing plan PayPal: ${updateError?.message || 'unknown error'}`));
               return;
             }
                         (async () => {
