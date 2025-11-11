@@ -26,9 +26,14 @@ export class PaypalSubscriptionService {
          throw new BadRequestException('Konfigurasi PayPal belum disetel (client ID/secret). Hubungi admin.');
        }
        const paypal = this.paypalConfigService.getPaypalSDK();
-       const appUrlRaw = this.configService.get<string>('APP_URL') || '';
-       const frontUrlRaw = this.configService.get<string>('FRONTEND_URL') || '';
-       const baseUrl = (appUrlRaw || frontUrlRaw || 'https://tradeinvestcenter.com').replace(/\/$/, '');
+       const sanitizeUrl = (v?: string) => (v || '')
+         .trim()
+         .replace(/^['"`]+|['"`]+$/g, '')
+         .replace(/\s+#.*$/g, '')
+         .replace(/\/+$/, '');
+       const appUrlRaw = sanitizeUrl(this.configService.get<string>('APP_URL'));
+       const frontUrlRaw = sanitizeUrl(this.configService.get<string>('FRONTEND_URL'));
+       const baseUrl = sanitizeUrl(appUrlRaw || frontUrlRaw || 'https://tradeinvestcenter.com');
        
        // Tentukan durasi berdasarkan jenis plan atau period yang dikirim
        let frequency = 'MONTH';
@@ -58,16 +63,16 @@ export class PaypalSubscriptionService {
            }
          ],
          merchant_preferences: {
-           setup_fee: {
-             currency: 'USD',
-             value: '0' // No setup fee
-           },
+            setup_fee: {
+              currency: 'USD',
+              value: '0' // No setup fee
+            },
            return_url: `${baseUrl}/api/subscription/billing-agreement/execute`,
            cancel_url: `${baseUrl}/api/subscription/payment/cancel`,
-           auto_bill_amount: 'YES',
-           initial_fail_amount_action: 'CONTINUE',
-           max_fail_attempts: '3'
-         }
+            auto_bill_amount: 'YES',
+            initial_fail_amount_action: 'CONTINUE',
+            max_fail_attempts: '3'
+          }
        };
 
       return new Promise((resolve, reject) => {
