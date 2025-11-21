@@ -506,4 +506,12 @@ export class SubscriptionController {
   async getInvoicePdf(@Param('id') id: string, @Res() res: Response) {
     await this.subscriptionService.streamInvoicePdf(res, id);
   }
+
+  // Delete payment (SUPER_ADMIN only)
+  @Delete('payment/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SUPER_ADMIN)
+  async deletePayment(@Param('id') id: string) {
+    return this.subscriptionService.deletePayment(id);
+  }
 }

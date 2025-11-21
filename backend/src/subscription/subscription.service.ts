@@ -12,6 +12,25 @@ export class SubscriptionService {
     private prisma: PrismaService,
     private paymentService: PaymentService,
   ) {}
+
+  /** Delete a payment (SUPER_ADMIN only). Restrict deleting PAID payments. */
+  async deletePayment(id: string) {
+    const payment = await this.prisma.payment.findUnique({ where: { id } });
+    if (!payment) throw new NotFoundException('Payment not found');
+    const meta: any = payment.metadata || {};
+    // Only allow deleting manual org invoice payments or pending/failed payments
+    const isOrgInvoice = meta.mode === 'ORG_INVOICE';
+    const isDeletableStatus = [PaymentStatus.PENDING, (PaymentStatus as any).AWAITING_APPROVAL, PaymentStatus.FAILED].includes(payment.status as any);
+    if (!isOrgInvoice && !isDeletableStatus) {
+      throw new BadRequestException('Only ORG_INVOICE or non-PAID payments can be deleted');
+    }
+    if (payment.status === PaymentStatus.PAID) {
+      throw new BadRequestException('Cannot delete a PAID payment');
+    }
+    // If linked to subscription, we keep subscription; deletion only removes payment record
+    await this.prisma.payment.delete({ where: { id } });
+    return { success: true };
+  }
   
   async updateBillingPlan(id: string, data: { name?: string; description?: string; price?: number; currency?: string; period?: 'MONTHLY'|'YEARLY'; status?: string; plan?: SubscriptionPlan | string; provider?: PaymentProvider | string; }) {
     const existing = await (this.prisma as any).billingPlan.findUnique({ where: { id } });

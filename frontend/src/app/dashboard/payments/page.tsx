@@ -6,7 +6,8 @@ import { Role } from "@/types/user.types";
 import { subscriptionService } from "@/services/subscription.service";
 import axiosInstance from "@/utils/axiosConfig";
 import { toast } from "react-toastify";
-import { FiCheck, FiX, FiRefreshCw, FiFilter, FiDownload } from "react-icons/fi";
+import { FiCheck, FiX, FiRefreshCw, FiFilter, FiDownload, FiTrash } from "react-icons/fi";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface PaymentItem {
   id: string;
@@ -25,6 +26,7 @@ interface PaymentItem {
 }
 
 export default function PaymentsAdminPage() {
+  const { isSuperAdmin } = usePermissions();
   const [items, setItems] = useState<PaymentItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [labelId, setLabelId] = useState("");
@@ -41,6 +43,8 @@ export default function PaymentsAdminPage() {
   const [actionPayment, setActionPayment] = useState<PaymentItem | null>(null);
   const [failReason, setFailReason] = useState("");
   const [expireSubs, setExpireSubs] = useState(false);
+  const [deletePayment, setDeletePayment] = useState<PaymentItem | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const awaitingOnly = useMemo(() => !status || status === "AWAITING_APPROVAL" || status === "PENDING", [status]);
 
@@ -239,6 +243,20 @@ export default function PaymentsAdminPage() {
     }
   };
 
+  const onDelete = async (p: PaymentItem) => {
+    try {
+      setDeleting(true);
+      await subscriptionService.deletePayment(p.id);
+      toast.success("Payment dihapus");
+      await fetchPayments();
+      setDeletePayment(null);
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || "Gagal menghapus payment");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <RoleGuard allowedRoles={[Role.ADMIN, Role.SUPER_ADMIN]}>
       <div className="p-4 space-y-4">
@@ -338,6 +356,9 @@ export default function PaymentsAdminPage() {
                           <button onClick={()=>handleDownloadInvoice(p)} className="inline-flex items-center gap-1 px-2 py-1 rounded border text-[11px] md:text-xs hover:bg-gray-50"><FiDownload/>Download</button>
                           <button disabled={p.status === 'PAID'} onClick={()=>onApprove(p)} className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-600 text-white text-[11px] md:text-xs disabled:opacity-50"><FiCheck/>Approve</button>
                           <button onClick={()=>{ setActionPayment(p); }} className="inline-flex items-center gap-1 px-2 py-1 rounded bg-red-600 text-white text-[11px] md:text-xs"><FiX/>Fail</button>
+                          {isSuperAdmin() && (
+                            <button onClick={()=> setDeletePayment(p)} className="inline-flex items-center gap-1 px-2 py-1 rounded bg-gray-200 text-black text-[11px] md:text-xs hover:bg-gray-300"><FiTrash/>Delete</button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -364,6 +385,20 @@ export default function PaymentsAdminPage() {
               <div className="flex justify-end gap-2 pt-2">
                 <button onClick={()=>setActionPayment(null)} className="px-3 py-2 rounded border text-sm hover:bg-gray-50">Batal</button>
                 <button onClick={()=>onFail(actionPayment)} className="px-3 py-2 rounded bg-red-600 text-white text-sm hover:bg-red-700">Konfirmasi Fail</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {deletePayment && (
+          <div className="fixed inset-0 z-[110] bg-black/50 flex items-center justify-center" onClick={()=> setDeletePayment(null)}>
+            <div className="bg-white rounded-lg w-full max-w-md p-4 space-y-3" onClick={(e)=> e.stopPropagation()}>
+              <div className="text-base font-semibold text-black">Delete Payment</div>
+              <div className="text-sm text-gray-700">Payment ID: <span className="text-black">{deletePayment.id}</span></div>
+              <div className="text-xs text-gray-600">Aksi ini tidak bisa dibatalkan. Payment dengan status PAID tidak dapat dihapus.</div>
+              <div className="flex justify-end gap-2 pt-2">
+                <button onClick={()=> setDeletePayment(null)} className="px-3 py-2 rounded border text-sm hover:bg-gray-50">Batal</button>
+                <button disabled={deleting} onClick={()=> onDelete(deletePayment)} className="px-3 py-2 rounded bg-gray-800 text-white text-sm hover:bg-gray-900 disabled:opacity-50">{deleting ? 'Menghapus...' : 'Hapus'}</button>
               </div>
             </div>
           </div>

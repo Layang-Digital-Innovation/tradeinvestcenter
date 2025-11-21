@@ -100,6 +100,11 @@ export const subscriptionService = {
     return data;
   },
 
+  async deletePayment(id: string) {
+    const { data } = await axiosInstance.delete(`/subscription/payment/${id}`);
+    return data as { success: boolean };
+  },
+
   // Unified checkout for subscription and one-time payments
   async checkout(payload: {
     type: 'subscription' | 'one_time';
