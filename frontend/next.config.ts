@@ -12,10 +12,10 @@ const nextConfig: NextConfig = {
     return [];
   },
   async rewrites() {
-    // Use internal backend URL for server-side proxying to avoid Traefik roundtrip
-    // Prefer NEXT_PUBLIC_BACKEND_URL (e.g., http://tic-backend:3001),
-    // fallback to BACKEND_URL, then local dev.
-    const RAW_BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL
+    // Prefer public API base for stability in production
+    // Falls back to internal backend URL, then local dev.
+    const RAW_BACKEND = process.env.NEXT_PUBLIC_API_URL
+      || process.env.NEXT_PUBLIC_BACKEND_URL
       || process.env.BACKEND_URL
       || 'http://localhost:3001';
     const dst = RAW_BACKEND.endsWith('/') ? RAW_BACKEND.slice(0, -1) : RAW_BACKEND;
