@@ -70,6 +70,15 @@ export default function SubscriptionPage() {
     return d ? new Date(d).getTime() < Date.now() : false;
   }, [sub]);
 
+  // Derive displayed status from period end to avoid confusing mismatch
+  const displayedStatus = useMemo(() => {
+    if (isExpired) return 'EXPIRED';
+    const s = sub?.status || 'TRIAL';
+    // If backend status is EXPIRED but period end is in the future, show ACTIVE
+    if (s === 'EXPIRED') return 'ACTIVE';
+    return s;
+  }, [isExpired, sub]);
+
   const labelName = useMemo(() => {
     const direct = sub?.label?.name;
     if (direct && typeof direct === 'string' && direct.trim()) return direct;
@@ -205,7 +214,7 @@ export default function SubscriptionPage() {
               <div>
                 <div className="text-sm text-gray-600">Status</div>
                 <div className="text-lg font-semibold text-black flex items-center gap-2">
-                  <span>{sub?.status || ("TRIAL")}</span>
+                  <span>{displayedStatus}</span>
                   {isExpired && (
                     <span className="inline-block text-xs px-2 py-0.5 rounded bg-red-100 text-red-700 border border-red-200">Expired</span>
                   )}
