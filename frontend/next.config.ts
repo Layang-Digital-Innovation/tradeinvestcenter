@@ -12,9 +12,11 @@ const nextConfig: NextConfig = {
   async rewrites() {
     // Backend URL untuk server-side proxy
     const backendUrl = process.env.BACKEND_URL || 'http://tic-backend:3001';
-    const apiBase = backendUrl.endsWith('/api') 
-      ? backendUrl 
-      : `${backendUrl}/api`;
+    const cleanBackend = backendUrl.replace(/\/+$/, '');
+    const apiBase = cleanBackend.endsWith('/api') 
+      ? cleanBackend 
+      : `${cleanBackend}/api`;
+    const uploadsBase = cleanBackend.replace(/\/api$/, '');
     
     console.log('Next.js Proxy Configuration:', { backendUrl, apiBase });
     
@@ -22,6 +24,10 @@ const nextConfig: NextConfig = {
       { 
         source: '/api/:path*', 
         destination: `${apiBase}/:path*` 
+      },
+      {
+        source: '/uploads/:path*',
+        destination: `${uploadsBase}/uploads/:path*`
       },
     ];
   },
