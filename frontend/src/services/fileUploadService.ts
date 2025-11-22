@@ -187,24 +187,9 @@ class FileUploadService {
    */
   async downloadFile(fileUrl: string, filename: string): Promise<void> {
     try {
-      const normalizeBackendBase = (): string => {
-        const backendRaw = process.env.NEXT_PUBLIC_BACKEND_URL?.trim();
-        const apiRaw = process.env.NEXT_PUBLIC_API_URL?.trim();
-        const preferred = backendRaw && backendRaw.length > 0 ? backendRaw : apiRaw;
-        if (preferred && preferred.length > 0) {
-          // Remove trailing slash and '/api' if present
-          return preferred.replace(/\/+$/, '').replace(/\/api$/, '');
-        }
-        if (typeof window !== 'undefined') {
-          return window.location.origin;
-        }
-        return 'http://localhost:3001';
-      };
-      const BACKEND_BASE = normalizeBackendBase();
-      const cleanedPath = (fileUrl || '').startsWith('http')
+      const url = (fileUrl || '').startsWith('http')
         ? fileUrl
-        : `${BACKEND_BASE}${(fileUrl || '').startsWith('/') ? '' : '/'}${fileUrl || ''}`;
-      const url = cleanedPath;
+        : `${window.location.origin}${(fileUrl || '').startsWith('/') ? '' : '/'}${fileUrl || ''}`;
       // Open the file in a new tab; browser will handle viewing/downloading the PDF
       window.open(url, '_blank');
     } catch (error) {
